@@ -2146,7 +2146,7 @@ async function checkIfPromoCodeUsed(enteredCode) {
 
     const { data, error } = await supabase
         .from('users')
-        .select('used_Promo_Codes')
+        .select('used_promo_codes')
         .eq('telegram_id', userId)
         .single(); // احصل على سجل المستخدم
 
@@ -2155,7 +2155,7 @@ async function checkIfPromoCodeUsed(enteredCode) {
         return false;
     }
 
-    const usedPromoCodes = data.used_Promo_Codes || [];
+    const usedPromoCodes = data.used_promo_codes || [];
     return usedPromoCodes.includes(enteredCode);
 }
 
@@ -2165,7 +2165,7 @@ async function addPromoCodeToUsed(enteredCode) {
 
     const { data, error } = await supabase
         .from('users')
-        .select('used_Promo_Codes')
+        .select('used_promo_codes')
         .eq('telegram_id', userId)
         .single();
 
@@ -2174,12 +2174,12 @@ async function addPromoCodeToUsed(enteredCode) {
         return false;
     }
 
-    const usedPromoCodes = data.used_Promo_Codes || [];
+    const usedPromoCodes = data.used_promo_codes || [];
     usedPromoCodes.push(enteredCode);
 
     const { error: updateError } = await supabase
         .from('users')
-        .update({ used_Promo_Codes: usedPromoCodes })
+        .update({ used_promo_codes: usedPromoCodes })
         .eq('telegram_id', userId);
 
     if (updateError) {
