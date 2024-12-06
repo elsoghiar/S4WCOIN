@@ -1,3 +1,21 @@
+.wallet-image {
+    width: 140px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+} 
+
+.icon-wallet {
+    width: 27px;
+    height: 27px;
+    flex-shrink: 0;
+    color: #000; 
+}
+
+.wallet-button img {
+    vertical-align: middle;
+}  
+
 #Buttoncontainer {
   position: fixed;
   width: 25%;
@@ -11,6 +29,7 @@
   gap: 15px; /* المسافة بين الأزرار */
   z-index: 1000; /* التأكد من أن الأزرار في المقدمة */
 }
+
 
 .wallet-button {
    /* position: fixed;
@@ -33,100 +52,37 @@
     color: #3592e7; 
 }  
 
+.wallet-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100vh; /* استخدام كامل الارتفاع */
+}
 
-/* صندوق المحفظة */
 .wallet-box {
-    background-color: rgba(0, 0, 0, 0.7); 
-    backdrop-filter: blur(8px);
-    border-radius: 15px; 
-    padding: 20px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-    width: 85%; 
-    max-width: 400px; 
-    margin: 0 auto;
-    height: auto;
+    background-color: rgba(0, 0, 0, 0.7); /* لون خلفية أغمق لتحسين التباين */
+    backdrop-filter: blur(8px); /* تأثير ضبابية ناعم */
+   /* border: 0.50px solid #444;*//* حد أغمق */
+    border-radius: 15px; /* تدوير أكبر للحواف */
+    padding: 20px; /* زيادة الحشوة */
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5); /* إضافة ظل للصندوق */
+    width: 85%; /* تحديد العرض بشكل مناسب */
+    max-width: 400px; /* تحديد عرض أقصى ليتماشى مع مختلف الأجهزة */
+    margin: 0 auto; /* لضمان توسيط الحاوية */
+    height: 60vh;
+    text-align: center;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
+    justify-content: center; /* تأكيد محاذاة المحتوى عموديًا */
 }
 
-/* أزرار الإرسال والسحب */
-.wallet-actions {
-    display: flex;
-    gap: 15px;
-    margin-top: 20px;
-    justify-content: center;
-}
-
-.wallet-button-action {
-    background-color: #3592e7;
-    color: #fff;
-    border: none;
-    border-radius: 25px;
-    padding: 10px 20px;
-    font-size: 14px;
+.wallet-box p {
+    font-size: 15px; /* تكبير حجم الخط */
     font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.wallet-button-action:hover {
-    background-color: #1d8bb5;
-    transform: scale(1.05);
-}
-
-/* صندوق التبديل */
-.swap-box {
-    background-color: rgba(0, 0, 0, 0.7); 
-    border-radius: 15px;
-    padding: 20px;
-    margin-top: 20px;
-    width: 85%;
-    max-width: 400px;
-    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.5);
-}
-
-.swap-title {
-    color: #fff;
-    font-size: 18px;
-    font-weight: bold;
-    margin-bottom: 15px;
-}
-
-.swap-controls {
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-.swap-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.swap-row label {
-    color: #fff;
-    font-size: 14px;
-    font-weight: bold;
-}
-
-.swap-row input, .swap-row select {
-    flex: 1;
-    padding: 8px;
-    border-radius: 5px;
-    border: 1px solid #444;
-    background-color: #101010;
-    color: #fff;
-}
-
-.swap-row input:disabled {
-    opacity: 0.5;
-}
-
-#swapConfirmBtn {
-    margin-top: 10px;
+    color: #808080; /* جعل النص أبيض ليتناسب مع الخلفية */
+    margin-bottom: 10px;
 }
 
 #ton-connect {
@@ -154,3 +110,29 @@
 #ton-connect button:hover {
     background-color: #101010; /* تأثير اللون عند التمرير */
 } 
+
+
+/* أزرار الإرسال والسحب */
+.wallet-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    justify-content: center;
+}
+
+.wallet-button-action {
+    background-color: #101010;
+    color: #fff;
+    border: none;
+    border-radius: 25px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wallet-button-action:hover {
+    background-color: #1d8bb5;
+    transform: scale(1.05);
+}
