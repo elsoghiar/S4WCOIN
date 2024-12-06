@@ -87,7 +87,7 @@ let gameState = {
     currentLevel: 1,
     achievedLevels: [],
     friends: 0,
-    energyLastUpdate: Date.now(),
+    energy_last_update: Date.now(),
     invites: [],
     claimedRewards: { levels: [] }, 
     tasksprogress: [],
@@ -168,7 +168,7 @@ async function saveGameState() {
         energy_boost_level: gameState.energyBoostLevel,
         current_level: gameState.currentLevel,
         friends: gameState.friends,
-        energyLastUpdate: Date.now(),
+        energy_last_update: Date.now(),
         invites: gameState.invites,
         claimed_rewards: gameState.claimedRewards,
         tasks_progress: gameState.tasksProgress,
@@ -205,7 +205,7 @@ async function restoreEnergy() {
 
         const recoveredEnergy = Math.floor(timeDiff / (4 * 60 * 1000)); // استعادة الطاقة كل 4 دقائق
         gameState.energy = Math.min(gameState.maxEnergy, gameState.energy + recoveredEnergy);
-        gameState.energyLastUpdate = currentTime; // تحديث وقت آخر استعادة
+        gameState.energy_last_update = currentTime; // تحديث وقت آخر استعادة
 
         updateUI();
         await saveGameState();
