@@ -422,19 +422,53 @@
 </div>
 
         <!-- Wallet Page -->
-  <div id="walletPage" class="screen-content scrollable">
-      <div id="globalNavbar">
+<div id="walletPage" class="screen-content scrollable">
+    <div id="globalNavbar">
         <div id="balanceContainer">
             <span id="navbarBalanceDisplay">0.00</span> <!-- الرصيد -->
+        </div>
+    </div>
+    <section class="wallet-container">
+        <!-- صندوق المحفظة -->
+        <div class="wallet-box">
+            <p>Connect Your Ton Wallet</p>
+            <div id="ton-connect">
+                <button class="ton-wallet-connect">Connect Wallet</button>
             </div>
-         </div>
-            <section class="wallet-container">
-                <div class="wallet-box">
-                <p> Connect Your Ton wallet </p>
-               <div id="ton-connect"></div>
-             </div>
-         </section> 
-       </div>
+        </div>
+
+        <!-- أزرار الإرسال والسحب -->
+        <div class="wallet-actions">
+            <button id="sendBtn" class="wallet-button-action">Send</button>
+            <button id="withdrawBtn" class="wallet-button-action">Withdraw</button>
+        </div>
+
+        <!-- صندوق التبديل -->
+        <div class="swap-box">
+            <h3 class="swap-title">Currency Swap</h3>
+            <div class="swap-controls">
+                <div class="swap-row">
+                    <label for="swapFrom">From:</label>
+                    <input type="number" id="swapFrom" placeholder="Enter amount">
+                    <select id="swapFromCurrency">
+                        <option value="TON">TON</option>
+                        <option value="USDT">USDT</option>
+                    </select>
+                </div>
+                <div class="swap-row">
+                    <label for="swapTo">To:</label>
+                    <input type="number" id="swapTo" placeholder="Result amount" disabled>
+                    <select id="swapToCurrency">
+                        <option value="USDT">USDT</option>
+                        <option value="TON">TON</option>
+                    </select>
+                </div>
+                <button id="swapConfirmBtn" class="wallet-button-action">Confirm Swap</button>
+            </div>
+        </div>
+    </section>
+</div>
+
         
                <!-- Game page -->
          <div id="gamePage" class="screen-content scrollable">
