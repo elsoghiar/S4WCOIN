@@ -659,14 +659,14 @@ img {
 /* تصميم الإشعار */
 .notification {
     position: fixed;
-    top: -70px; /* البداية من فوق الشاشة */
+    top: -50px; /* البداية من فوق الشاشة */
     left: 50%;
     transform: translateX(-50%);
     background: #141414;
     color: #fff;
     padding: 10px 20px; /* زيادة padding لجعل الإشعار طويل */
     border-radius: 15px;
-    border: 1px solid #1a1a1a;
+    /*border: 1px solid #1a1a1a;*/
     font-size: 13px;
     z-index: 1000;
     opacity: 0; /* البداية غير مرئية */
