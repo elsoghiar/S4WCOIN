@@ -1106,7 +1106,7 @@ async function updateUserData() {
             tasks_progress: gameState.tasksprogress, 
             completed_tasks: gameState.completedTasks, 
             puzzles_progress: gameState.puzzlesprogress, 
-            used_Promo_Codes: gameState.usedPromoCodes, 
+            used_promo_codes: gameState.usedPromoCodes, 
             achieved_Levels: gameState.achievedLevels, 
             last_login_date: gameState.lastLoginDate ? new Date(gameState.lastLoginDate).toISOString() : null,
             consecutive_days: gameState.consecutiveDays, 
