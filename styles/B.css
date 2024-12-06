@@ -62,7 +62,7 @@
 
 .separatorrrr {
     width: 0.5px;
-    height: 15px;
+    height: 10px;
     background-color: #808080;
     margin: 0 5px;
 }
@@ -213,6 +213,7 @@
 
 
 .boost-meta {
+    margin-right: 20px;
     margin-top: 5px;
     display: flex;
     flex-direction: row; /* ترتيب الليفيل والتكلفة أفقيًا */
