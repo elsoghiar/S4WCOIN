@@ -130,31 +130,45 @@
        </main>
     </div>
      
-            <!-- نافذة الإعدادات --> 
-       <div id="SettingsPage" class="screen-content scrollable">
-         <div class="settings-container">
-            <div class="user-details">
-               <img src="i/users.jpg" alt="User Image" class="user-image">
-               <div class="user-name">NAME : <span id="userTelegramName">Username</span></div>
-               <div class="user-id">ID : <span id="userTelegramId">123456</span></div>
+ <div id="SettingsPage" class="screen-content scrollable">
+    <div class="settings-container">
+        <!-- كارت معلومات الحساب -->
+        <div class="user-details-card">
+            <img src="i/users.jpg" alt="User Image" class="user-image">
+            <div class="user-details-text">
+                <div class="user-name">NAME: <span id="userTelegramName">Username</span></div>
+                <div class="user-id">ID: <span id="userTelegramId">123456</span></div>
             </div>
-           <div class="user-box">
-             <div class="account-summary">
-              <div class="user-premium-status">
-              Premium Status : <span id="userPremiumStatus">Loading...</span>
-            </div>
-             <p>Total Friends : <span id="settingsInvitedCount">0</span>
-             </p>
-             <p>Total Coins : <span id="settingsBalanceDisplay">0</span>
-             </p>
-             <p>Current Level : <span id="settingsCurrentLevelName"></span>
-             </p>
-             <p>Profit per hour : <span id="Profit-in">0.00/hr</span>
-            </p>
-          </div>
         </div>
-     </div>
-  </div>
+
+        <!-- الحاوية للتفاصيل الإضافية -->
+        <div class="user-box">
+            <div class="account-summary">
+                <p>
+                    <span class="detail-label">Premium Status:</span>
+                    <span id="userPremiumStatus" class="detail-value">Loading...</span>
+                </p>
+                <p>
+                    <span class="detail-label">Total Friends:</span>
+                    <span id="settingsInvitedCount" class="detail-value">0</span>
+                </p>
+                <p>
+                    <span class="detail-label">Total Coins:</span>
+                    <span id="settingsBalanceDisplay" class="detail-value">0</span>
+                </p>
+                <p>
+                    <span class="detail-label">Current Level:</span>
+                    <span id="settingsCurrentLevelName" class="detail-value"></span>
+                </p>
+                <p>
+                    <span class="detail-label">Profit per hour:</span>
+                    <span id="Profit-in" class="detail-value">0.00/hr</span>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
         <!-- تسجيل يومي  -->
      <div id="logindailyContainer" class="logindaily-container hidden">
          <div class="logindaily-content hidden">
