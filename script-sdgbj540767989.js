@@ -2735,7 +2735,7 @@ function loadUpgradeState() {
 
 window.addEventListener('load', () => {
     loadUpgradeState();
-    updateBoostsDisplay();
+  //  updateBoostsDisplay();
 });
 
 
