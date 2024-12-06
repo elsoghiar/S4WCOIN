@@ -13,15 +13,15 @@
     font-size: 1rem;
 }  
 
-.user-premium-status .Error-mark {
+.Error-mark {
     color: red;
     width: 20px;
     height: 20px;
     vertical-align: middle;
 }
 
-.user-premium-status .icon-tabler {
-    color: #26A5E4;
+.icon-tabler {
+    color: #3592e7;
     width: 20px;
     height: 20px;
     vertical-align: middle;
