@@ -2567,7 +2567,7 @@ window.addEventListener('load', () => {
 //////////////////////////////////////
 
 
-eruda.init();
+//eruda.init();
 
 // تفعيل التطبيق
 initializeApp();
