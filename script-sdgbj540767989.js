@@ -2155,7 +2155,7 @@ async function checkIfPromoCodeUsed(enteredCode) {
         return false;
     }
 
-    const usedPromoCodes = data.used_promo_codes || [];
+    const usedPromoCodes = data?.used_promo_codes || [];
     return usedPromoCodes.includes(enteredCode);
 }
 
@@ -2163,6 +2163,14 @@ async function checkIfPromoCodeUsed(enteredCode) {
 async function addPromoCodeToUsed(enteredCode) {
     const userId = uiElements.userTelegramIdDisplay.innerText;
 
+    // تحقق إذا كان البرومو كود مستخدمًا بالفعل
+    const isUsed = await checkIfPromoCodeUsed(enteredCode);
+    if (isUsed) {
+        console.warn('Promo code has already been used by this user.');
+        return false; // منع تسجيل البرومو كود المكرر
+    }
+
+    // الحصول على الأكواد المستخدمة وتحديثها
     const { data, error } = await supabase
         .from('users')
         .select('used_promo_codes')
@@ -2174,7 +2182,7 @@ async function addPromoCodeToUsed(enteredCode) {
         return false;
     }
 
-    const usedPromoCodes = data.used_promo_codes || [];
+    const usedPromoCodes = data?.used_promo_codes || [];
     usedPromoCodes.push(enteredCode);
 
     const { error: updateError } = await supabase
@@ -2190,7 +2198,6 @@ async function addPromoCodeToUsed(enteredCode) {
     console.log('Promo code added to used list successfully.');
     return true;
 }
-
 
 document.getElementById('promocodeBtu').addEventListener('click', function() {
     document.getElementById('promoContainer').classList.remove('hidden');
