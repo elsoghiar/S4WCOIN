@@ -4,7 +4,7 @@
   height: 100%;
   top: 0;
   left: 0;
-  z-index: 1; /* يجعل النجوم خلف العناصر */
+  z-index: 0; /* يجعل النجوم خلف العناصر */
   overflow: hidden;
 }
 
@@ -14,7 +14,7 @@
   height: 2px;
   background: white;
   border-radius: 50%;
-  animation: twinkle 5s infinite, moveStars 20s linear infinite; /* تقليل السرعة */
+  animation: twinkle 7s infinite, moveStars 30s linear infinite; /* تقليل السرعة */
 }
 
 @keyframes twinkle {
@@ -31,7 +31,7 @@
     transform: translate(0, 0);
   }
   100% {
-    transform: translate(-50vw, 50vh); /* حركة أبطأ وأقل */
+    transform: translate(-40vw, 40vh); /* حركة أبطأ وأقل */
   }
 }
 
