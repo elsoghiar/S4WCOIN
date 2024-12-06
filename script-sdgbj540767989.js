@@ -2787,8 +2787,8 @@ window.addEventListener('load', () => {
 
 const skyContainer = document.querySelector(".sky-container");
 
-// عدد النجوم
-const starCount = 150;
+// تقليل عدد النجوم
+const starCount = 50;
 
 for (let i = 0; i < starCount; i++) {
   const star = document.createElement("div");
@@ -2797,8 +2797,8 @@ for (let i = 0; i < starCount; i++) {
   // وضع عشوائي للنجوم
   star.style.left = Math.random() * 100 + "vw";
   star.style.top = Math.random() * 100 + "vh";
-  star.style.animationDelay = Math.random() * 5 + "s";
-  star.style.animationDuration = Math.random() * 5 + 5 + "s";
+  star.style.animationDelay = Math.random() * 10 + "s"; // تأخير عشوائي لظهور النجوم
+  star.style.animationDuration = Math.random() * 15 + 15 + "s"; // مدة حركة النجوم
 
   skyContainer.appendChild(star);
 }
