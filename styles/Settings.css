@@ -13,6 +13,19 @@
     font-size: 1rem;
 }  
 
+.user-premium-status .Error-mark {
+    color: red;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+}
+
+.user-premium-status .icon-tabler {
+    color: #26A5E4;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+} 
 
 /* الحاوية الرئيسية */
 .settings-container {
@@ -33,6 +46,7 @@
     border-radius: 10px;
     padding: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    margin-bottom: 40px;
 }
 
 /* صورة المستخدم */
