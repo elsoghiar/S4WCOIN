@@ -2785,25 +2785,23 @@ window.addEventListener('load', () => {
 
 //////////////////////////////////////
 
-const starsContainer = document.createElement("div");
-starsContainer.classList.add("stars");
+const skyContainer = document.querySelector(".sky-container");
 
-for (let i = 0; i < 100; i++) { // عدد النجوم
+// عدد النجوم
+const starCount = 150;
+
+for (let i = 0; i < starCount; i++) {
   const star = document.createElement("div");
   star.classList.add("star");
 
   // وضع عشوائي للنجوم
-  star.style.left = Math.random() * 100 + "%";
-  star.style.top = Math.random() * 100 + "%";
+  star.style.left = Math.random() * 100 + "vw";
+  star.style.top = Math.random() * 100 + "vh";
   star.style.animationDelay = Math.random() * 5 + "s";
   star.style.animationDuration = Math.random() * 5 + 5 + "s";
 
-  starsContainer.appendChild(star);
+  skyContainer.appendChild(star);
 }
-
-document.querySelector(".minee-container").appendChild(starsContainer);
-
-
 
 
 
