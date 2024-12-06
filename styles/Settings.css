@@ -35,8 +35,8 @@
 
 /* صورة المستخدم */
 .user-image {
-    width: 60px;
-    height: 60px;
+    width: 40px;
+    height: 40px;
     border-radius: 10px; /* صورة دائرية */
     border: 1px solid #343434; /* إطار للصورة */
     margin-bottom: 20px; /* مسافة أسفل الصورة */
