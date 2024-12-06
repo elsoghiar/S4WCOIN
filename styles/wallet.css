@@ -1,3 +1,18 @@
+#Buttoncontainer {
+  position: fixed;
+  width: 25%;
+  /*background-color: #101010;*/
+  height: 30px;
+  padding: 5px;
+  border-radius: 20px; 
+  top: 12px; /* المسافة من الأعلى */
+  right: 12px; /* المسافة من اليمين */
+  display: flex;
+  gap: 15px; /* المسافة بين الأزرار */
+  z-index: 1000; /* التأكد من أن الأزرار في المقدمة */
+}
+
+
 /* صندوق المحفظة */
 .wallet-box {
     background-color: rgba(0, 0, 0, 0.7); 
