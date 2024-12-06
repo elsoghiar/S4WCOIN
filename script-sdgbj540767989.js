@@ -87,12 +87,12 @@ let gameState = {
     currentLevel: 1,
     achievedLevels: [],
     friends: 0,
-    energy_last_update: Date.now(),
+    energy_last_update: new Date().toISOString(),  // تحويل الطابع الزمني إلى تنسيق ISO
     invites: [],
-    claimedRewards: { levels: [] }, 
+    claimedRewards: { levels: [] },
     tasksprogress: [],
     completedTasks: [],
-    puzzlesprogress:[], 
+    puzzlesprogress: [],
     usedPromoCodes: [],
     lastLoginDate: null, // تاريخ آخر تسجيل دخول
     consecutiveDays: 0,  // عدد الأيام المتتالية التي تم المطالبة فيها بالمكافآت
@@ -168,7 +168,7 @@ async function saveGameState() {
         energy_boost_level: gameState.energyBoostLevel,
         current_level: gameState.currentLevel,
         friends: gameState.friends,
-        energy_last_update: Date.now(),
+        energy_last_update: new Date(gameState.energy_last_update).toISOString(), 
         invites: gameState.invites,
         claimed_rewards: gameState.claimedRewards,
         tasks_progress: gameState.tasksProgress,
@@ -1040,7 +1040,7 @@ async function updateUserData() {
             energy_boost_level: gameState.energyBoostLevel,
             current_level: gameState.currentLevel,
             friends: gameState.friends,
-            energy_last_update: new Date(gameState.energyLastUpdate).toISOString(), 
+            energy_last_update: new Date(gameState.energy_last_update).toISOString(), 
             invites: gameState.invites,
             claimed_rewards: gameState.claimedRewards, // حفظ المكافآت المحصلة في قاعدة البيانات
             tasks_progress: gameState.tasksprogress, 
