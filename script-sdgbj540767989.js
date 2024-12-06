@@ -87,7 +87,7 @@ let gameState = {
     currentLevel: 1,
     achievedLevels: [],
     friends: 0,
-    lastFillTime: Date.now(),
+    energyLastUpdate: Date.now(),
     invites: [],
     claimedRewards: { levels: [] }, 
     tasksprogress: [],
@@ -168,7 +168,7 @@ async function saveGameState() {
         energy_boost_level: gameState.energyBoostLevel,
         current_level: gameState.currentLevel,
         friends: gameState.friends,
-        last_fill_time: new Date(gameState.lastFillTime).toISOString(),
+        energyLastUpdate: Date.now(),
         invites: gameState.invites,
         claimed_rewards: gameState.claimedRewards,
         tasks_progress: gameState.tasksProgress,
@@ -198,29 +198,20 @@ async function saveGameState() {
 }
 
 
-
-//تحديث الطاقه 
 async function restoreEnergy() {
     try {
         const currentTime = Date.now();
-        const timeDiff = currentTime - gameState.lastFillTime;
+        const timeDiff = currentTime - gameState.energyLastUpdate;
 
-        // حساب الطاقة المستعادة
         const recoveredEnergy = Math.floor(timeDiff / (4 * 60 * 1000)); // استعادة الطاقة كل 4 دقائق
         gameState.energy = Math.min(gameState.maxEnergy, gameState.energy + recoveredEnergy);
-        gameState.lastFillTime = currentTime; // تحديث وقت آخر استعادة
+        gameState.energyLastUpdate = currentTime; // تحديث وقت آخر استعادة
 
-        // تحديث واجهة المستخدم
         updateUI();
-
-        // حفظ حالة اللعبة
         await saveGameState();
-
         console.log('Energy restored successfully.');
     } catch (err) {
         console.error('Error restoring energy:', err.message);
-
-        // إشعار بفشل الاستعادة
         showNotificationWithStatus(uiElements.purchaseNotification, `Failed to restore energy. Please reload.`, 'lose');
     }
 }
@@ -825,27 +816,22 @@ function navigateToScreen(screenId) {
 
 
 
-
 function startEnergyRecovery() {
     setInterval(() => {
-        // التأكد من وجود طاقة أقل من الحد الأقصى
         if (gameState.energy < gameState.maxEnergy) {
-            // إذا كانت الطاقة صفر أو أقل من الحد الأقصى، يتم زيادتها بمقدار 10
             gameState.energy = Math.min(gameState.maxEnergy, gameState.energy + 15);
+            gameState.energyLastUpdate = Date.now();
 
-            // تحديث الوقت الأخير لملء الطاقة
-            gameState.lastFillTime = Date.now();
-
-            // تحديث واجهة المستخدم وحفظ البيانات
             updateUI();
             saveGameState();
             updateGameStateInDatabase({
                 energy: gameState.energy,
-                lastFillTime: gameState.lastFillTime,
+                energy_last_update: gameState.energyLastUpdate,
             });
         }
-    }, 3000); // تنفيذ الدالة كل 5 ثوانٍ
+    }, 3000);
 }
+
 
 
 //////////////////////////////////
@@ -1054,7 +1040,7 @@ async function updateUserData() {
             energy_boost_level: gameState.energyBoostLevel,
             current_level: gameState.currentLevel,
             friends: gameState.friends,
-            last_fill_time: new Date(gameState.lastFillTime).toISOString(),
+            energy_last_update: new Date(gameState.energyLastUpdate).toISOString(), 
             invites: gameState.invites,
             claimed_rewards: gameState.claimedRewards, // حفظ المكافآت المحصلة في قاعدة البيانات
             tasks_progress: gameState.tasksprogress, 
