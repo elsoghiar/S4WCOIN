@@ -876,7 +876,6 @@ function updateLevelDisplay() {
 
         if (levelPageName && levelPageCoinsElement && levelPageEnergyFill) {
             levelPageName.innerText = `Lvl : ${currentLevelData.name}`;
-            applyGradientToLevel(levelPageName, gameState.currentLevel);
 
             levelPageCoinsElement.innerText = `Next Lvl : ${Math.round(progress)}%`;
             levelPageEnergyFill.style.width = `${progress}%`;
@@ -900,8 +899,6 @@ function updateLevelDisplay() {
         currentLevelElement.classList.add('current-level');
     }
 }
-
-
 
 
 ///////////////////
