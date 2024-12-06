@@ -2784,8 +2784,9 @@ window.addEventListener('load', () => {
 });
 
 window.addEventListener('click', (event) => {
-    if (event.target === uiElements.upgradeModal) {
-        uiElements.upgradeModal.style.display = 'none';
+    const modal = uiElements.upgradeModal;
+    if (modal && modal.style.display === 'block' && !modal.contains(event.target)) {
+        modal.style.display = 'none';
     }
 });
 
