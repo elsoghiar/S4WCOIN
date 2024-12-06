@@ -247,39 +247,33 @@ const levelThresholds = [
     { level: 30, threshold: 13050000, name: 'Infinity' },
 ];
 
-// التحقق من الترقية إلى مستوى أعلى
 async function checkForLevelUp() {
     for (let i = 0; i < levelThresholds.length; i++) {
         const levelData = levelThresholds[i];
 
-        // تحقق من شروط الترقية
         if (
-            gameState.balance >= levelData.threshold &&  // تحقق إذا كان الرصيد يكفي
-            gameState.currentLevel < levelData.level &&  // تحقق إذا كان المستوى الحالي أقل
-            !gameState.achievedLevels.includes(levelData.level)  // تحقق إذا لم يتم الوصول إلى هذا المستوى مسبقًا
+            gameState.balance >= levelData.threshold &&
+            gameState.currentLevel < levelData.level &&
+            !gameState.achievedLevels.includes(levelData.level)
         ) {
-            // ترقية المستخدم إلى المستوى الجديد
             gameState.currentLevel = levelData.level;
-
-            // تسجيل المستوى الجديد
             gameState.achievedLevels.push(levelData.level);
 
-            // تحديث واجهة المستخدم
             updateUI();
 
-            // تحديث قاعدة البيانات
-            const updatedData = {
-                currentLevel: gameState.currentLevel,
-                achieved_levels: gameState.achievedLevels,
-            };
+            const userId = uiElements.userTelegramIdDisplay.innerText;
+            const userDoc = doc(db, "users", userId);
 
-            const isUpdated = await updateGameStateInDatabase(updatedData);
-
-            if (!isUpdated) {
-                console.error('Failed to update levels in the database.');
+            try {
+                await updateDoc(userDoc, {
+                    currentLevel: gameState.currentLevel,
+                    achieved_levels: gameState.achievedLevels,
+                });
+                console.log('Level updated successfully.');
+            } catch (error) {
+                console.error('Error updating levels:', error);
             }
 
-            // كسر الحلقة لأن المستخدم تمت ترقيته
             break;
         }
     }
@@ -288,45 +282,35 @@ async function checkForLevelUp() {
 
 
 
-
-// دالة تهيئة التطبيق
 async function initializeApp() {
     try {
         console.log('Initializing app...');
-
-        // جلب بيانات المستخدم من Telegram وSupabase
         await fetchUserDataFromTelegram();
 
-        // إخفاء شاشة البداية وعرض المحتوى الرئيسي
-         setTimeout(() => {
-       if (uiElements.splashScreen) uiElements.splashScreen.style.display = 'none';
-       if (uiElements.mainContainer) uiElements.mainContainer.style.display = 'flex';
-    }, 2000); // 10000 ميلي ثانية تعني 10 ثوانٍ
+        setTimeout(() => {
+            if (uiElements.splashScreen) uiElements.splashScreen.style.display = 'none';
+            if (uiElements.mainContainer) uiElements.mainContainer.style.display = 'flex';
+        }, 2000);
 
-        
-        // استمع إلى التغييرات في البيانات
         listenToRealtimeChanges();
-
-        // إعداد واجهة المستخدم
         updateUI();
         registerEventHandlers();
         startEnergyRecovery();
-        
+
         console.log('App initialized successfully.');
     } catch (error) {
         console.error('Error initializing app:', error);
         showNotification(uiElements.purchaseNotification, 'Failed to initialize app.');
-        if (uiElements.splashScreen) uiElements.splashScreen.style.display = 'none';
-        if (uiElements.mainContainer) uiElements.mainContainer.style.display = 'flex';
     }
 }
 
-// جلب البيانات تليجرام 
+
+import { getDoc, setDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 async function fetchUserDataFromTelegram() {
     const telegramApp = window.Telegram.WebApp;
     telegramApp.ready();
 
-    // جلب بيانات المستخدم من Telegram
     const userTelegramId = telegramApp.initDataUnsafe.user?.id;
     const userTelegramName = telegramApp.initDataUnsafe.user?.username;
     const isPremium = telegramApp.initDataUnsafe.user?.is_premium;
@@ -335,62 +319,30 @@ async function fetchUserDataFromTelegram() {
         throw new Error("Failed to fetch Telegram user data.");
     }
 
-    // تحديث واجهة المستخدم
     uiElements.userTelegramIdDisplay.innerText = userTelegramId;
     uiElements.userTelegramNameDisplay.innerText = userTelegramName;
-    
-    // تحديث رسالة الترحيب
-   const welcomeTextElement = document.getElementById("welcomeText");
-   const userNameElement = document.getElementById("userName");
 
-   if (welcomeTextElement && userNameElement) {
-      welcomeTextElement.innerText = "Welcome back";
-      userNameElement.innerText = userTelegramName;
-    }
+    const userDoc = doc(db, "users", userTelegramId);
 
-    // تحديث حالة الحساب (Premium)
-    const premiumStatusElement = document.getElementById('userPremiumStatus');
-    if (premiumStatusElement) {
-        premiumStatusElement.innerHTML = isPremium
-            ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-circle-dashed-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M8.56 3.69a9 9 0 0 0 -2.92 1.95" /><path d="M3.69 8.56a9 9 0 0 0 -.69 3.44" /><path d="M3.69 15.44a9 9 0 0 0 1.95 2.92" /><path d="M8.56 20.31a9 9 0 0 0 3.44 .69" /><path d="M15.44 20.31a9 9 0 0 0 2.92 -1.95" /><path d="M20.31 15.44a9 9 0 0 0 .69 -3.44" /><path d="M20.31 8.56a9 9 0 0 0 -1.95 -2.92" /><path d="M15.44 3.69a9 9 0 0 0 -3.44 -.69" /><path d="M9 12l2 2l4 -4" /></svg>`
-            : `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="Error-mark"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" /></svg>`;
-    }
+    try {
+        const userSnapshot = await getDoc(userDoc);
 
-    
-    // تحقق من المستخدم في قاعدة البيانات، سجل إذا لم يكن موجودًا
-    const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('telegram_id', userTelegramId)
-        .maybeSingle(); 
-
-    if (error) {
-        console.error('Error fetching user data:', error);
-        throw new Error('Failed to fetch user data');
-    }
-
-    if (data) {
-        // المستخدم مسجل مسبقاً
-        gameState = { ...gameState, ...data };
-        saveGameState();
-        loadFriendsList(); // تحميل قائمة الأصدقاء بعد جلب البيانات
-    } else {
-        // تسجيل مستخدم جديد
-        await registerNewUser(userTelegramId, userTelegramName);
+        if (userSnapshot.exists()) {
+            gameState = { ...gameState, ...userSnapshot.data() };
+            saveGameState();
+            loadFriendsList();
+        } else {
+            // تسجيل مستخدم جديد
+            await setDoc(userDoc, {
+                telegram_id: userTelegramId,
+                username: userTelegramName,
+                balance: gameState.balance,
+            });
+        }
+    } catch (error) {
+        console.error("Error fetching or creating user data:", error);
     }
 }
-
-// تسجيل مستخدم جديد في قاعدة البيانات
-async function registerNewUser(userTelegramId, userTelegramName) {
-    const { error } = await supabase
-        .from('users')
-        .insert([{ telegram_id: userTelegramId, username: userTelegramName, balance: gameState.balance }]);
-    if (error) {
-        console.error('Error inserting new user:', error);
-        throw new Error('Failed to register new user');
-   
-     }
-  }
 
 
 
@@ -853,7 +805,8 @@ function updateLevelDisplay() {
 ///////////////////
 
 
-// تحسين عرض قائمة الأصدقاء
+import { getDoc, doc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 async function loadFriendsList() {
     const userId = uiElements.userTelegramIdDisplay.innerText;
 
@@ -865,107 +818,73 @@ async function loadFriendsList() {
 
     try {
         // جلب قائمة الأصدقاء من قاعدة البيانات
-        const { data, error } = await supabase
-            .from('users')
-            .select('invites') // عمود الدعوات الذي يحتوي على قائمة المعرفات
-            .eq('telegram_id', userId)
-            .single();
+        const userDoc = doc(db, "users", userId);
+        const userSnapshot = await getDoc(userDoc);
 
-        if (error) {
-            console.error('Error fetching friends list:', error.message);
-            uiElements.friendsListDisplay.innerHTML = `<li>Error: Unable to fetch friends at the moment.</li>`;
+        if (!userSnapshot.exists()) {
+            console.error("User data not found.");
+            uiElements.friendsListDisplay.innerHTML = `<li>No data found for this user.</li>`;
             return;
         }
 
-        // التأكد من أن الدعوات تحتوي على معرّفات الأصدقاء
-        if (data && data.invites && Array.isArray(data.invites) && data.invites.length > 0) {
+        const data = userSnapshot.data();
+        const invites = data.invites || [];
+
+        if (invites.length > 0) {
             uiElements.friendsListDisplay.innerHTML = ''; // مسح القائمة القديمة
 
             // جلب بيانات الأصدقاء بما في ذلك الرصيد لكل معرف
-            const friendsPromises = data.invites.map(async (friendId) => {
-                const { data: friendData, error: friendError } = await supabase
-                    .from('users')
-                    .select('telegram_id, balance')
-                    .eq('telegram_id', friendId)
-                    .single();
-
-                if (friendError) {
-                    console.error(`Error fetching data for friend ${friendId}:`, friendError.message);
-                    return null;
-                }
-
-                return friendData; // إرجاع البيانات الخاصة بالصديق
+            const friendsPromises = invites.map(async (friendId) => {
+                const friendDoc = doc(db, "users", friendId);
+                const friendSnapshot = await getDoc(friendDoc);
+                return friendSnapshot.exists() ? friendSnapshot.data() : null;
             });
 
-            // الانتظار حتى يتم جلب جميع بيانات الأصدقاء
             const friendsData = await Promise.all(friendsPromises);
 
             // عرض الأصدقاء مع رصيدهم
             friendsData.forEach((friend) => {
                 if (friend) {
                     const li = document.createElement('li');
-                    li.classList.add('friend-item'); // إضافة الـ CSS
+                    li.classList.add('friend-item');
 
-                    // إنشاء عنصر الصورة الافتراضية
+                    // إنشاء الصورة
                     const img = document.createElement('img');
-                    img.src = 'i/users.jpg'; // رابط الصورة الافتراضية
+                    img.src = 'i/users.jpg';
                     img.alt = `${friend.telegram_id} Avatar`;
                     img.classList.add('friend-avatar');
 
                     // إضافة معرّف الصديق
                     const span = document.createElement('span');
                     span.classList.add('friend-name');
-                    span.textContent = `ID : ${friend.telegram_id}`;
+                    span.textContent = `ID: ${friend.telegram_id}`;
 
-                    // إنشاء عنصر لعرض الرصيد
+                    // إضافة الرصيد
                     const balanceSpan = document.createElement('span');
                     balanceSpan.classList.add('friend-balance');
-                    balanceSpan.textContent = `${formatNumber(friend.balance)} $S4W`; // عرض الرصيد
+                    balanceSpan.textContent = `${formatNumber(friend.balance)} $S4W`;
 
-                    // إنشاء div يحتوي على الصورة واسم الصديق
-                    const friendInfoDiv = document.createElement('div');
-                    friendInfoDiv.classList.add('friend-info');
-                    friendInfoDiv.appendChild(img);
-                    friendInfoDiv.appendChild(span);
-
-                    // إضافة الصورة واسم الصديق إلى الـ li
-                    li.appendChild(friendInfoDiv);
-
-                    // إضافة الرصيد على اليمين
+                    // بناء العنصر
+                    li.appendChild(img);
+                    li.appendChild(span);
                     li.appendChild(balanceSpan);
 
-                    // إضافة الصديق إلى القائمة
                     uiElements.friendsListDisplay.appendChild(li);
                 }
             });
 
-            // تحديث العدد الإجمالي للأصدقاء
-            const totalFriendsCount = data.invites.length;
-            const invitedCountElement = document.getElementById('invitedCount');
-            const settingsInvitedCountElement = document.getElementById('settingsInvitedCount');
-
-            if (invitedCountElement) {
-                invitedCountElement.innerText = totalFriendsCount; // عرض العدد الإجمالي للأصدقاء
-            }
-            if (settingsInvitedCountElement) {
-                settingsInvitedCountElement.innerText = totalFriendsCount; // عرض العدد الإجمالي في الإعدادات
-            }
+            // تحديث العدد الإجمالي
+            const totalFriendsCount = invites.length;
+            document.getElementById('invitedCount').innerText = totalFriendsCount;
+            document.getElementById('settingsInvitedCount').innerText = totalFriendsCount;
         } else {
             uiElements.friendsListDisplay.innerHTML = '<li>No friends invited yet.</li>';
-
-            const invitedCountElement = document.getElementById('invitedCount');
-            const settingsInvitedCountElement = document.getElementById('settingsInvitedCount');
-
-            if (invitedCountElement) {
-                invitedCountElement.innerText = 0; // إذا لم يكن هناك أصدقاء مدعوون
-            }
-            if (settingsInvitedCountElement) {
-                settingsInvitedCountElement.innerText = 0; // إذا لم يكن هناك أصدقاء مدعوون
-            }
+            document.getElementById('invitedCount').innerText = 0;
+            document.getElementById('settingsInvitedCount').innerText = 0;
         }
     } catch (err) {
-        console.error("Unexpected error loading friends list:", err);
-        uiElements.friendsListDisplay.innerHTML = `<li>Error: Unexpected issue occurred while loading friends.</li>`;
+        console.error("Error loading friends list:", err);
+        uiElements.friendsListDisplay.innerHTML = `<li>Error loading friends. Please try again later.</li>`;
     }
 }
 
