@@ -2706,6 +2706,8 @@ document.getElementById('closeModal').addEventListener('click', function() {
 function confirmUpgradeAction() {
     const upgradeType = uiElements.upgradeModal.getAttribute('data-upgrade-type');
     let cost;
+    let successMessage = '';
+    let failureMessage = 'You don’t have enough coins to upgrade';
 
     if (upgradeType === 'boost') {
         cost = gameState.boostLevel * 500 + 500;
@@ -2713,12 +2715,7 @@ function confirmUpgradeAction() {
             gameState.balance -= cost;
             gameState.boostLevel++;
             gameState.clickMultiplier += 1;
-
-            // عرض إشعار بالترقية
-            showNotification(purchaseNotification, `Upgraded successfully ${upgrades.boost.title}`);
-        } else {
-            // عرض إشعار بعدم كفاية الرصيد
-            showNotification(purchaseNotification, 'You dont have enough coins to upgrade');
+            successMessage = `Upgraded successfully ${upgrades.boost.title}`;
         }
     } else if (upgradeType === 'coin') {
         cost = gameState.coinBoostLevel * 500 + 500;
@@ -2726,20 +2723,22 @@ function confirmUpgradeAction() {
             gameState.balance -= cost;
             gameState.coinBoostLevel++;
             gameState.maxEnergy += 500;
-
-            // عرض إشعار بالترقية
-             showNotification(purchaseNotification, `Upgraded successfully ${upgrades.coin.title}`);
-        } else {
-            // عرض إشعار بعدم كفاية الرصيد
-            showNotification(purchaseNotification, ' You dont have enough coins to upgrade');
+            successMessage = `Upgraded successfully ${upgrades.coin.title}`;
         }
     }
 
     saveUpgradeState(upgradeType); // حفظ الترقية
     updateUI();
+
+    // عرض إشعار بناءً على حالة الترقية
+    if (successMessage) {
+        showNotification(purchaseNotification, successMessage);
+    } else {
+        showNotification(purchaseNotification, failureMessage);
+    }
+
     uiElements.upgradeModal.style.display = 'none';
 }
-
 
 
 function updateBoostsDisplay() {
