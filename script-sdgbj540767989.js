@@ -95,9 +95,7 @@ let gameState = {
     tasksprogress: [],
     completedTasks: [],
     puzzlesprogress:[], 
-    caesarPuzzleProgress:[], 
     usedPromoCodes: [],
-    ciphersProgress:[],
     lastLoginDate: null, // تاريخ آخر تسجيل دخول
     consecutiveDays: 0,  // عدد الأيام المتتالية التي تم المطالبة فيها بالمكافآت
 };
@@ -179,11 +177,9 @@ async function saveGameState() {
         tasks_progress: gameState.tasksProgress,
         puzzles_progress: gameState.puzzlesProgress,
         used_promo_codes: gameState.usedPromoCodes,
-        morse_ciphers_progress: gameState.ciphersProgress,
         last_login_date: gameState.lastLoginDate ? new Date(gameState.lastLoginDate).toISOString() : null,
         consecutive_days: gameState.consecutiveDays,
         achieved_Levels: gameState.achievedLevels,
-        caesar_puzzles_progress: gameState.caesarPuzzleProgress, 
         
     };
 
@@ -258,18 +254,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     listenToRealtimeChanges();   
     await initializeApp();  
     updateBoostsDisplay();
-    updateInviteFriendsButton();
 });
 
 
 document.addEventListener("DOMContentLoaded", function() {
     updateUI(); // تأكد من تحديث الرصيد عند تحميل الصفحة
 });
-
-//document.addEventListener('DOMContentLoaded', async () => {
-   // await loadGameStateFromDB(); 
-    //updateUI();
-//});
 
 
 // مستويات اللعبة المتناسقة
@@ -833,13 +823,6 @@ function navigateToScreen(screenId) {
     } else {
         footerMenu.style.display = 'none'; // إخفاء القائمة السفلية في الصفحات الأخرى
     }
-
-    // إضافة منطق خاص لصفحة "boostsPage" إذا لزم الأمر
-    //if (screenId === 'boostsPage') {
-      //  if (uiElements.boostUpgradeBtn) uiElements.boostUpgradeBtn.style.display = 'block';
-     //   if (uiElements.coinUpgradeBtn) uiElements.coinUpgradeBtn.style.display = 'block';
-     //   if (uiElements.fillEnergyUpgradeBtn) uiElements.fillEnergyUpgradeBtn.style.display = 'block';
-   // }
 }
 
 
@@ -907,8 +890,6 @@ function updateLevelDisplay() {
 
         if (floatingButtonName) {
             floatingButtonName.innerText = `Lvl : ${currentLevelData.name}`;
-
-            floatingButtonName.classList.remove('gradient-level-1', 'gradient-level-2', 'gradient-level-3', 'gradient-level-4', 'gradient-level-5');
         }
     }
 
@@ -926,31 +907,7 @@ function updateLevelDisplay() {
 
 
 
-
-
-
 ///////////////////
-
-
-function applyGradientToLevel(element, level) {
-    element.className = ""; // إزالة جميع الفئات الحالية
-
-    if (level <= 10) {
-        element.classList.add('gradient-level-1');
-    } else if (level <= 20) {
-        element.classList.add('gradient-level-2');
-    } else if (level <= 30) {
-        element.classList.add('gradient-level-3');
-    } else if (level <= 40) {
-        element.classList.add('gradient-level-4');
-    } else if (level <= 50) {
-        element.classList.add('gradient-level-5');
-    }
-}
-
-
-///////////////////////////////////////
-
 
 
 // تحسين عرض قائمة الأصدقاء
@@ -1111,11 +1068,9 @@ async function updateUserData() {
             completed_tasks: gameState.completedTasks, 
             puzzles_progress: gameState.puzzlesprogress, 
             used_Promo_Codes: gameState.usedPromoCodes, 
-            morse_ciphers_progress: gameState.ciphersProgress, 
             achieved_Levels: gameState.achievedLevels, 
             last_login_date: gameState.lastLoginDate ? new Date(gameState.lastLoginDate).toISOString() : null,
-            consecutive_days: gameState.consecutiveDays, 
-            caesar_puzzles_progress: gameState.caesarPuzzleProgress, 
+            consecutive_days: gameState.consecutiveDays,
      
         })
         .eq('telegram_id', userId);
