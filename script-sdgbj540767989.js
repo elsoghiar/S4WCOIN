@@ -2658,7 +2658,7 @@ async function showUpgradeModal(upgradeType) {
         boost: {
             cost: gameState.boostLevel * 500 + 500,
             icon: `
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-boosts">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-boosts">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M8 13v-8.5a1.5 1.5 0 0 1 3 0v7.5" />
                     <path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5" />
@@ -2676,7 +2676,7 @@ async function showUpgradeModal(upgradeType) {
         coin: {
             cost: gameState.coinBoostLevel * 500 + 500,
             icon: `
-                <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-boosts">
+                <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-boosts">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                     <path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11" />
                 </svg>
