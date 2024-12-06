@@ -12,6 +12,27 @@
   z-index: 1000; /* التأكد من أن الأزرار في المقدمة */
 }
 
+.wallet-button {
+   /* position: fixed;
+    top: 18px; 
+    left: 38px;*/
+    color: #fff; 
+    margin-left: 5px;
+    background-color: rgba(255, 255, 255, 0.001);
+    border-radius: 5px; /* لجعل الزر دائري */
+   /* padding: px;*//* مساحة إضافية حول الصورة */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.wallet-button:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); /* إضافة ظل */
+} 
+
+.wallet-button i {
+    font-size: 1.1rem;
+    color: #3592e7; 
+}  
+
 
 /* صندوق المحفظة */
 .wallet-box {
@@ -28,24 +49,6 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-}
-
-/* زر ربط المحفظة */
-.ton-wallet-connect {
-    background-color: #3592e7;
-    border: none;
-    color: #fff;
-    font-size: 16px;
-    font-weight: bold;
-    padding: 10px 40px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: transform 0.2s ease, background-color 0.2s ease;
-}
-
-.ton-wallet-connect:hover {
-    background-color: #1d8bb5;
-    transform: scale(1.05);
 }
 
 /* أزرار الإرسال والسحب */
@@ -125,3 +128,29 @@
 #swapConfirmBtn {
     margin-top: 10px;
 }
+
+#ton-connect {
+    width: 100%; /* جعل الزر يمتد بعرض الصندوق */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 0; /* إضافة مسافة أعلى الزر */
+}
+
+#ton-connect button {
+   /* background-color: rgba(0, 0, 0, 0.009);*/
+    background-color: #3592e7;/* لون زر مناسب */
+    border: 1px solid #1a1a1a;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 20px 60px;
+    border-radius: 25px;
+    cursor: pointer;
+    width: 100%; /* جعل الزر بعرض الصندوق */
+    max-width: 300px; /* تحديد عرض أقصى للزر */
+}
+
+#ton-connect button:hover {
+    background-color: #101010; /* تأثير اللون عند التمرير */
+} 
