@@ -258,7 +258,7 @@ img {
 
 #balanceAmount::after {
     content: "S4W"; /* النص المطلوب */
-    font-size: 24px; /* حجم النص */
+    font-size: 28px; /* حجم النص */
     font-weight: 600;
     color: #fff;
     position: relative; /* لضبط الموضع */
