@@ -2013,35 +2013,12 @@ document.addEventListener('DOMContentLoaded', () => {
 ///////////////////////////////////////////
 
 
-function showContent(contentId) {
-    // Hide all content sections
-    document.getElementById('tasksContent').style.display = 'none';
-    document.getElementById('gamesContent').style.display = 'none';
-
-    // Remove active class from all switch buttons
-    document.getElementById('tasksContentButton').classList.remove('active');
-    document.getElementById('gamesContentButton').classList.remove('active');
-
-    // Show selected content and add active class to corresponding button
-    document.getElementById(contentId).style.display = 'block';
-    if (contentId === 'tasksContent') {
-        document.getElementById('tasksContentButton').classList.add('active');
-    } else {
-        document.getElementById('gamesContentButton').classList.add('active');
-    }
-}
-
-///////////////////////////////////////
 
 
-
-            
-    document.getElementById('applyPromoCode').addEventListener('click', async () => {
+document.getElementById('applyPromoCode').addEventListener('click', async () => {
     const applyButton = document.getElementById('applyPromoCode');
     const promoCodeInput = document.getElementById('promoCodeInput');
     const enteredCode = promoCodeInput.value;
-        
-    const AdController = window.Adsgram.init({ blockId: "int-5511" });
 
     // إخفاء نص الزر وعرض دائرة تحميل
     applyButton.innerHTML = '';  // إخفاء النص
@@ -2058,22 +2035,12 @@ function showContent(contentId) {
         const promoData = await response.json();
         const promoCodes = promoData.promoCodes;
 
-        // تحقق مما إذا كان المستخدم قد استخدم هذا البرومو كود مسبقًا
+        // تحقق مما إذا كان المستخدم قد استخدم هذا البرومو كود من قاعدة البيانات
         const alreadyUsed = await checkIfPromoCodeUsed(enteredCode);
 
         if (alreadyUsed) {
-            applyButton.innerHTML = '‼️';
+            applyButton.innerHTML = '⛔';
             showNotificationWithStatus(uiElements.purchaseNotification, 'You have already used this promo code.', 'win');
-
-            // تأخير بسيط قبل عرض الإعلان
-            setTimeout(() => {
-                AdController.show().then(() => {
-                    console.log("Ad viewed successfully");
-                }).catch(err => {
-                    console.error("Error showing ad:", err);
-                });
-            }, 2000);
-
             setTimeout(() => {
                 applyButton.innerHTML = 'Apply';
                 applyButton.classList.remove('loading');
@@ -2092,25 +2059,18 @@ function showContent(contentId) {
             // تحديث واجهة المستخدم
             updateUI(); 
 
-            // تسجيل البرومو كود المستخدم في قاعدة البيانات
+            // حفظ البرومو كود المستخدم في قاعدة البيانات
             const updated = await addPromoCodeToUsed(enteredCode);
             if (!updated) {
                 showNotification(uiElements.purchaseNotification, 'Failed to save promo code in database.', true);
                 return;
             }
 
-            // عرض الإشعار بالمكافأة
+            // عرض علامة صح (✔️) عند النجاح
             applyButton.innerHTML = '✔️';
-            showNotificationWithStatus(uiElements.purchaseNotification, `Successfully added ${reward} $S4W to your balance!`, 'win');
 
-            // تأخير بسيط قبل عرض الإعلان
-            setTimeout(() => {
-                AdController.show().then(() => {
-                    console.log("Ad viewed successfully");
-                }).catch(err => {
-                    console.error("Error showing ad:", err);
-                });
-            }, 2000);
+            // إظهار إشعار بالمكافأة
+            showNotificationWithStatus(uiElements.purchaseNotification, `Successfully added ${reward} coins to your balance!`, 'win');
 
             // حفظ الحالة الحالية للعبة وتحديثها في قاعدة البيانات
             updateUI(); 
@@ -2119,19 +2079,14 @@ function showContent(contentId) {
                 used_Promo_Codes: gameState.usedPromoCodes,
                 balance: gameState.balance,
             });
-        } else {
-            // عرض الإشعار عند البرومو كود غير صحيح
-            applyButton.innerHTML = '❌';
-            showNotification(uiElements.purchaseNotification, 'Invalid promo code.');
 
-            // تأخير بسيط قبل عرض الإعلان
-            setTimeout(() => {
-                AdController.show().then(() => {
-                    console.log("Ad viewed successfully");
-                }).catch(err => {
-                    console.error("Error showing ad:", err);
-                });
-            }, 2000);
+            
+        } else {
+            // عرض علامة خطأ (❌) عند البرومو كود غير صحيح
+            applyButton.innerHTML = '❌';
+
+            // إظهار إشعار بالخطأ
+            showNotificationWithStatus(uiElements.purchaseNotification, 'Invalid promo code.', 'lose');
         }
     } catch (error) {
         console.error('Error fetching promo codes:', error);
@@ -2146,7 +2101,7 @@ function showContent(contentId) {
     }
 });
 
-// دالة للتحقق مما إذا كان البرومو كود مستخدمًا مسبقًا
+// دالة للتحقق من البرومو كود المستخدم من قاعدة البيانات
 async function checkIfPromoCodeUsed(enteredCode) {
     const userId = uiElements.userTelegramIdDisplay.innerText;
 
