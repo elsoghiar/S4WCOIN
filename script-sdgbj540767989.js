@@ -1,7 +1,22 @@
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
-import { SUPABASE_URL, SUPABASE_ANON_KEY } from './Scripts/config.js';
+// استيراد Firebase
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// إعداد Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyD-PSKB25Kr4hZFXzHfjnK3sy1QXXBKZQI",
+    authDomain: "s4wcoin.firebaseapp.com",
+    projectId: "s4wcoin",
+    storageBucket: "s4wcoin.firebasestorage.app",
+    messagingSenderId: "237771929098",
+    appId: "1:237771929098:web:85d674e4cd99fdba6411f3",
+    measurementId: "G-99SFMQNM3D"
+};
+
+// تهيئة التطبيق
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 
 // تعريف عناصر DOM
 const uiElements = {
@@ -98,104 +113,49 @@ let gameState = {
     consecutiveDays: 0,  // عدد الأيام المتتالية التي تم المطالبة فيها بالمكافآت
 };
 
-//تحديث البيانت من الواجهه الي قاعده البيانات 
 async function updateGameStateInDatabase(updatedData) {
     const userId = uiElements.userTelegramIdDisplay.innerText;
+    const userDoc = doc(db, "users", userId);
 
     try {
-        const { data, error } = await supabase
-            .from('users')
-            .update(updatedData) // البيانات الجديدة
-            .eq('telegram_id', userId); // شرط التحديث
-
-        if (error) {
-            console.error('Error updating game state in Supabase:', error);
-            return false;
-        }
-
-        console.log('Game state updated successfully in Supabase:', data);
-        return true;
-    } catch (err) {
-        console.error('Unexpected error while updating game state:', err);
-        return false;
+        await updateDoc(userDoc, updatedData);
+        console.log('Game state updated successfully in Firebase.');
+} catch (error) {
+        console.error('Error updating game state in Firebase:', error);
     }
 }
 
-
-
-//تحديث قاعده البيانات 
 async function loadGameState() {
     const userId = uiElements.userTelegramIdDisplay.innerText;
+    const userDoc = doc(db, "users", userId);
 
     try {
-        console.log('Loading game state from Supabase...');
-        const { data, error } = await supabase
-            .from('users')
-            .select('*')
-            .eq('telegram_id', userId)
-            .single();
-
-        if (error) {
-            console.error('Error loading game state from Supabase:', error.message);
-            return;
-        }
-
-        if (data) {
-            console.log('Loaded game state:', data); // عرض البيانات المحملة
+        const userSnapshot = await getDoc(userDoc);
+        if (userSnapshot.exists()) {
+            const data = userSnapshot.data();
             gameState = { ...gameState, ...data };
+            console.log('Loaded game state:', data);
             updateUI();
         } else {
             console.warn('No game state found for this user.');
         }
-    } catch (err) {
-        console.error('Unexpected error:', err);
+    } catch (error) {
+        console.error('Error loading game state from Firebase:', error);
     }
 }
-
-
-// حفظ حالة اللعبة في LocalStorage وقاعدة البيانات
-async function saveGameState() {
+  
+ async function saveGameState() {
     const userId = uiElements.userTelegramIdDisplay.innerText;
-
-    // إنشاء بيانات محدثة للحفظ
-    const updatedData = {
-        balance: gameState.balance,
-        energy: gameState.energy,
-        max_energy: gameState.maxEnergy,
-        click_multiplier: gameState.clickMultiplier,
-        boost_level: gameState.boostLevel,
-        coin_boost_level: gameState.coinBoostLevel,
-        energy_boost_level: gameState.energyBoostLevel,
-        current_level: gameState.currentLevel,
-        friends: gameState.friends,
-        energy_last_update: new Date(gameState.energy_last_update).toISOString(), 
-        invites: gameState.invites,
-        claimed_rewards: gameState.claimedRewards,
-        tasks_progress: gameState.tasksProgress,
-        puzzles_progress: gameState.puzzlesProgress,
-        used_promo_codes: gameState.usedPromoCodes,
-        last_login_date: gameState.lastLoginDate ? new Date(gameState.lastLoginDate).toISOString() : null,
-        consecutive_days: gameState.consecutiveDays,
-        achieved_Levels: gameState.achievedLevels,
-        
-    };
+    const userDoc = doc(db, "users", userId);
 
     try {
-        // حفظ البيانات في قاعدة البيانات
-        const { error } = await supabase
-            .from('users')
-            .update(updatedData)
-            .eq('telegram_id', userId);
-
-        if (error) {
-            throw new Error(`Error saving game state: ${error.message}`);
-        }
-
-        console.log('Game state updated successfully.');
-    } catch (err) {
-        console.error(err.message);
+        await setDoc(userDoc, { ...gameState }, { merge: true });
+        console.log('Game state saved successfully.');
+    } catch (error) {
+        console.error('Error saving game state in Firebase:', error);
     }
-}
+ }
+
 
 
 async function restoreEnergy() {
@@ -218,20 +178,23 @@ async function restoreEnergy() {
 
 
 
-// الاستماع إلى التغييرات في قاعدة البيانات
+import { onSnapshot } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 function listenToRealtimeChanges() {
     const userId = uiElements.userTelegramIdDisplay.innerText;
+    const userDoc = doc(db, "users", userId);
 
-    supabase
-        .channel('public:users')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'users', filter: `telegram_id=eq.${userId}` }, payload => {
-            console.log('Change received!', payload);
-            gameState = { ...gameState, ...payload.new };
+    onSnapshot(userDoc, (docSnapshot) => {
+        if (docSnapshot.exists()) {
+            const updatedData = docSnapshot.data();
+            console.log('Realtime update received:', updatedData);
+            gameState = { ...gameState, ...updatedData };
             updateUI();
-            saveGameState();
-        })
-        .subscribe();
+        }
+    });
 }
+
+
 
 // تهيئة التطبيق عند تحميل الصفحة
 document.addEventListener('DOMContentLoaded', async () => {
