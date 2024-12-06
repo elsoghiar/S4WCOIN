@@ -1,20 +1,7 @@
-.minee-container {
-  border-top: 1px solid #101010;
-  width: 100%; /* تغطي كامل عرض الشاشة */
-  height: 85%; /* تغطي 70% من الشاشة */
-  position: absolute; /* تموضع مطلق */
-  bottom: 0; /* تبدأ من أسفل الشاشة */
-  left: 0; /* تبدأ من الحافة اليسرى */
-  background: #000;
-  overflow: hidden; /* إخفاء العناصر التي تخرج عن الحاوية */
-  border-radius: 25px 25px 0 0;
-}
-
-.stars {
+.sky-container {
   position: absolute;
   width: 100%;
   height: 100%;
-  z-index: 1;
   overflow: hidden;
 }
 
@@ -24,7 +11,7 @@
   height: 2px;
   background: white;
   border-radius: 50%;
-  animation: twinkle 2s infinite, moveStars 10s linear infinite;
+  animation: twinkle 3s infinite, moveStars 10s linear infinite;
 }
 
 @keyframes twinkle {
@@ -38,16 +25,15 @@
 
 @keyframes moveStars {
   0% {
-    transform: translateY(0);
+    transform: translate(0, 0);
   }
   100% {
-    transform: translateY(100vh);
+    transform: translate(-100vw, 100vh);
   }
 }
 
 
-
-/*.minee-container {
+.minee-container {
     border-top: 1px solid #101010;
     width: 100%; 
     height: 85%; 
@@ -56,7 +42,7 @@
     left: 0; 
     background: #000;
     border-radius: 25px 25px 0 0;
-}*/
+}
 
 #mainPage {
     padding-top: 50px; /* يمكنك تغيير القيمة حسب الحاجة */
