@@ -254,7 +254,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     listenToRealtimeChanges();   
     await initializeApp();  
     updateBoostsDisplay();
-    updateInviteFriendsButton();
+   // updateInviteFriendsButton();
 });
 
 
