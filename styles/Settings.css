@@ -1,150 +1,71 @@
-.account-summary p {
-    border-bottom: 0.5px solid #343434; /* خط خفيف */
-    padding-bottom: 5px; /* مسافة لتوضيح الحواف */
-    margin-bottom: 5px; /* مسافة بين الحواف */
-}
-
-.user-premium-status {
-    border-bottom: 0.5px solid #343434;
-    padding-bottom: 5px;
-    margin-bottom: 5px;
-}
-
-.user-premium-status .Error-mark {
-    color: red;
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-}
-
-.user-premium-status .icon-tabler {
-    color: #26A5E4;
-    width: 20px;
-    height: 20px;
-    vertical-align: middle;
-}
-
+/* الحاوية الرئيسية */
 .settings-container {
-    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: 20px; /* مسافة بين العناصر */
+    gap: 20px;
+    padding: 20px;
+}
+
+/* كارت معلومات الحساب */
+.user-details-card {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    max-width: 400px;
+    background-color: #101010;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* صورة المستخدم */
 .user-image {
-    width: 40px;
-    height: 40px;
-    border-radius: 10px; /* صورة دائرية */
-    border: 1px solid #343434; /* إطار للصورة */
-    margin-bottom: 20px; /* مسافة أسفل الصورة */
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    border: 1px solid #343434;
 }
 
-/* صندوق المستخدم */
-.user-box {
-    position: relative;
-    width: 95%;
-    max-width: 300px;
-    background-color: transparent; /* خلفية داكنة داخل الصندوق */
-    border-radius: 15px;
-    padding: 20px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-}
-
-/* تفاصيل المستخدم */
-.user-details {
-    margin-bottom: 20px;
+/* نصوص معلومات الحساب */
+.user-details-text {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 }
 
 .user-name,
 .user-id {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    margin-bottom: 10px;
-    color: #f0f0f0; /* لون النص */
 }
 
-.user-id {
-    font-size: 14px;
+/* الحاوية للتفاصيل الإضافية */
+.user-box {
+    width: 95%;
+    background-color: #101010;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
 }
 
 /* ملخص الحساب */
-.account-summary {
-    width: 100%;
-    text-align: left; /* نصوص متراصة إلى اليسار */
-    background-color:transparent;
-    border-radius: 10px;
-    padding: 15px;
-    margin-left: 2px; 
-    color: #ffffff;
-    line-height: 1.8;
-    font-size: 14px;
-}
-
 .account-summary p {
-    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 0.5px solid #343434;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
 }
 
-/* زر الإعدادات */
-.settings-button {
-   /* position: fixed;
-    top: 18px; 
-    right: 38px;*/
-    color: #fff; 
-    background-color: rgba(255, 255, 255, 0.001);
-    border-radius: 5px; 
-   /* padding: 5px;*/
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.settings-button i {
-    font-size: 1rem;
-}  
-
-.settings-button img {
-    width: 25px;
-    height: 25px;
-    vertical-align: middle;
-}
-
-.user-svg {
-    width: 25px;
-    height: 25px;
+.detail-label {
+    font-size: 14px;
     color: #ffffff;
-    vertical-align: middle;
-} 
-
-.settings-button:hover {
-    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.3); /* إضافة ظل */
-    opacity: 1;
 }
 
-/*.icon-container {
-  display: inline-block;
-  vertical-align: middle; 
+.detail-value {
+    font-size: 14px;
+    font-weight: bold;
+    color: #f0f0f0;
 }
-
-.icon-container svg {
-    position: absolute;
-    left: 5px;
-    width: 25px;
-    height: 25px;
-    color: #ffffff;
-    vertical-align: middle;
-}*/
-
- .icon-container {
-  margin-bottom: 30px; 
-  display: inline-block;
-  vertical-align: middle; /* محاذاة العمود */
-}
-
-.icon-container svg {
-  position: absolute;
-  margin-left: 10px; /* وضع الأيقونة قبل النص */
-  width: 25px; 
-  height: 25px;
-  color: #ffffff; /* لون الأيقونة */
-} 
