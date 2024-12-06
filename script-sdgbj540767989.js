@@ -2783,32 +2783,8 @@ window.addEventListener('load', () => {
     updateBoostsDisplay();
 });
 
-window.addEventListener('click', (event) => {
-    const modal = uiElements.upgradeModal;
-    if (modal && modal.style.display === 'block' && !modal.contains(event.target)) {
-        modal.style.display = 'none';
-    }
-});
 
 //////////////////////////////////////
-
-document.getElementById("sendStartButton").addEventListener("click", function() {
-    const userTelegramId = window.userTelegramId; // معرف المستخدم من تليجرام
-    
-    if (!userTelegramId) {
-        alert("لا يمكن العثور على معرف المستخدم. تأكد من أنك تستخدم التطبيق عبر تليجرام.");
-        return;
-    }
-
-    const data = `/start ${userTelegramId}`; // صيغة الرسالة
-    sendData(data); // إرسال البيانات للبوت
-});
-
-function sendData(data) {
-    // إرسال البيانات للبوت عبر Telegram Web Apps
-    Telegram.WebApp.sendData(data); 
-    alert("تم إرسال رسالة /start للبوت.");
-}
 
 
 
