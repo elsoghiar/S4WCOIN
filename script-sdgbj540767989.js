@@ -906,13 +906,16 @@ function openTelegramChat() {
     window.open(inviteLink, '_blank');
 }
 
-// تحديث بيانات المستخدم في Supabase
+import { doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 async function updateUserData() {
     const userId = uiElements.userTelegramIdDisplay.innerText;
 
-    const { error } = await supabase
-        .from('users')
-        .update({
+    try {
+        const userDocRef = doc(db, "users", userId);
+
+        // تحديث بيانات المستخدم في Firebase
+        await updateDoc(userDocRef, {
             balance: gameState.balance,
             energy: gameState.energy,
             max_energy: gameState.maxEnergy,
@@ -922,26 +925,23 @@ async function updateUserData() {
             energy_boost_level: gameState.energyBoostLevel,
             current_level: gameState.currentLevel,
             friends: gameState.friends,
-            energy_last_update: new Date(gameState.energy_last_update).toISOString(), 
+            energy_last_update: new Date(gameState.energy_last_update).toISOString(),
             invites: gameState.invites,
-            claimed_rewards: gameState.claimedRewards, // حفظ المكافآت المحصلة في قاعدة البيانات
-            tasks_progress: gameState.tasksprogress, 
-            completed_tasks: gameState.completedTasks, 
-            puzzles_progress: gameState.puzzlesprogress, 
-            used_Promo_Codes: gameState.usedPromoCodes, 
-            achieved_Levels: gameState.achievedLevels, 
+            claimed_rewards: gameState.claimedRewards,
+            tasks_progress: gameState.tasksprogress,
+            completed_tasks: gameState.completedTasks,
+            puzzles_progress: gameState.puzzlesprogress,
+            used_Promo_Codes: gameState.usedPromoCodes,
+            achieved_Levels: gameState.achievedLevels,
             last_login_date: gameState.lastLoginDate ? new Date(gameState.lastLoginDate).toISOString() : null,
             consecutive_days: gameState.consecutiveDays,
-     
-        })
-        .eq('telegram_id', userId);
+        });
 
-    if (error) {
-        console.error('Error updating user data:', error);
+        console.log('User data updated successfully in Firebase');
+    } catch (error) {
+        console.error('Error updating user data in Firebase:', error);
     }
 }
-
-
 
 
 
@@ -1052,8 +1052,8 @@ window.Telegram.WebApp.setBackgroundColor('#000000');
 //////////////////////////////////////
 
 
+ import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
 
-// المهام 
 document.addEventListener('DOMContentLoaded', async () => {
     const taskContainer = document.querySelector('#taskcontainer');
     if (!taskContainer) {
@@ -1061,21 +1061,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    // جلب المهام المكتملة من قاعدة البيانات
+    // جلب المهام المكتملة من قاعدة البيانات (Firebase)
     const userId = uiElements.userTelegramIdDisplay.innerText;
     let completedTasks = [];
 
     try {
-        const { data, error } = await supabase
-            .from('users')
-            .select('completed_tasks')
-            .eq('telegram_id', userId)
-            .single();
+        const userDocRef = doc(db, "users", userId);
+        const userSnapshot = await getDoc(userDocRef);
 
-        if (error) {
-            console.error('Error fetching completed tasks:', error);
+        if (userSnapshot.exists()) {
+            completedTasks = userSnapshot.data()?.completed_tasks || [];
         } else {
-            completedTasks = data?.completed_tasks || [];
+            console.error('User not found in Firebase');
         }
     } catch (err) {
         console.error('Unexpected error while fetching completed tasks:', err);
@@ -1096,7 +1093,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 img.classList.add('task-img');
                 taskElement.appendChild(img);
 
-                 // Create a container for description and reward
+                // Create a container for description and reward
                 const infoContainer = document.createElement('div');
                 infoContainer.classList.add('info-task'); // This will hold both description and reward
 
@@ -1105,17 +1102,10 @@ document.addEventListener('DOMContentLoaded', async () => {
                 description.textContent = task.description;
                 infoContainer.appendChild(description);
 
-                 // Task Reward without Coin Image
+                // Task Reward without Coin Image
                 const rewardContainer = document.createElement('div');
                 rewardContainer.classList.add('task-reward-container');
             
-            // حذف أو تعليق الجزء الخاص بإضافة صورة العملة
-            // const rewardIcon = document.createElement('img');
-            // rewardIcon.src = 'i/coii.png'; // مسار صورة العملة
-            // rewardIcon.alt = 'Coinreward';
-            // rewardIcon.classList.add('reward-coin-icon'); // معرف جديد للرمز
-            // rewardContainer.appendChild(rewardIcon);
- 
                 const rewardText = document.createElement('span');
                 rewardText.textContent = `+ ${task.reward} $S4W`;
                 rewardText.classList.add('task-reward');
@@ -1125,33 +1115,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                 taskElement.appendChild(infoContainer); // Append the info container to the task element
 
-           
                 // زر المهمة
                 const button = document.createElement('button');
-                 button.classList.add('task-button');
-                 button.setAttribute('data-task-id', task.id);
-                 button.setAttribute('data-reward', task.reward);
+                button.classList.add('task-button');
+                button.setAttribute('data-task-id', task.id);
+                button.setAttribute('data-reward', task.reward);
 
-                 // تعيين نص الزر بناءً على حالة المهمة
-                 if (completedTasks.includes(task.id)) {
-                 // علامة الصح
-                 button.innerHTML = `
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                   <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                 </svg>
-                `;
-                 button.disabled = true;
-             } else {
-                // السهم
-                 button.innerHTML = `
-                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="arrow">
-                     <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-                   </svg>
-                 `;
+                // تعيين نص الزر بناءً على حالة المهمة
+                if (completedTasks.includes(task.id)) {
+                    // علامة الصح
+                    button.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                        </svg>
+                    `;
+                    button.disabled = true;
+                } else {
+                    // السهم
+                    button.innerHTML = `
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="arrow">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    `;
                 }
 
-               taskElement.appendChild(button);
-               taskContainer.appendChild(taskElement);
+                taskElement.appendChild(button);
+                taskContainer.appendChild(taskElement);
 
                 // التعامل مع النقر على الزر
                 let taskProgress = 0;
@@ -1178,51 +1167,39 @@ document.addEventListener('DOMContentLoaded', async () => {
         .catch(error => console.error('Error fetching tasks:', error));
 });
 
-// استلام المكافأة وتحديث قاعدة البيانات
+// استلام المكافأة وتحديث قاعدة البيانات (Firebase)
 async function claimTaskReward(taskId, reward, button) {
     try {
         // التحقق إذا كانت المهمة مكتملة مسبقًا
         const userId = uiElements.userTelegramIdDisplay.innerText;
-        const { data, error } = await supabase
-            .from('users')
-            .select('completed_tasks')
-            .eq('telegram_id', userId)
-            .single();
+        const userDocRef = doc(db, "users", userId);
+        const userSnapshot = await getDoc(userDocRef);
 
-        if (error) {
-            console.error('Error fetching completed tasks:', error);
-            return;
-        }
+        if (userSnapshot.exists()) {
+            const completedTasks = userSnapshot.data()?.completed_tasks || [];
+            if (completedTasks.includes(taskId)) {
+                showNotification(uiElements.purchaseNotification, 'You have already claimed this reward.');
+                return;
+            }
 
-        const completedTasks = data?.completed_tasks || [];
-        if (completedTasks.includes(taskId)) {
-            showNotification(uiElements.purchaseNotification, 'You have already claimed this reward.');
-            return;
-        }
+            // إضافة المكافأة إلى الرصيد
+            gameState.balance += reward;
+            completedTasks.push(taskId);
 
-        // إضافة المكافأة إلى الرصيد
-        gameState.balance += reward;
-        completedTasks.push(taskId);
+            // تحديث واجهة المستخدم
+            button.textContent = '✓';
+            button.disabled = true;
+            updateUI();
+            showNotificationWithStatus(uiElements.purchaseNotification, `Successfully claimed ${reward} coins!`, 'win');
 
-        // تحديث واجهة المستخدم
-        button.textContent = '✓';
-        button.disabled = true;
-        updateUI();
-        showNotificationWithStatus(uiElements.purchaseNotification, `Successfully claimed ${reward} coins!`, 'win');
-
-        // تحديث قاعدة البيانات
-        const updatedData = {
-            balance: gameState.balance,
-            completed_tasks: completedTasks,
-        };
-
-        const { updateError } = await supabase
-            .from('users')
-            .update(updatedData)
-            .eq('telegram_id', userId);
-
-        if (updateError) {
-            console.error('Error updating completed tasks:', updateError);
+            // تحديث قاعدة البيانات في Firebase
+            await updateDoc(userDocRef, {
+                balance: gameState.balance,
+                completed_tasks: completedTasks,
+            });
+            console.log('Task completed and data updated in Firebase');
+        } else {
+            console.error('User not found in Firebase');
         }
     } catch (error) {
         console.error('Error claiming task reward:', error);
@@ -1250,7 +1227,6 @@ function openTaskLink(taskurl, callback) {
         setTimeout(callback, 1000);
     }
 }
-
 
 
 
@@ -1374,6 +1350,8 @@ window.addEventListener("load", initializeTelegramIntegration);
 ///////////////////////////////
 
 
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
 // تعريف عناصر DOM
 const puzzlecloseModal = document.getElementById('puzzlecloseModal');
 const puzzleCountdown = document.getElementById('puzzleCountdown');
@@ -1414,16 +1392,13 @@ function getTodaysPuzzle(puzzles) {
     return puzzles.find(p => new Date(p.availableDate).toDateString() === today);
 }
 
-
 // عرض مؤقت العد التنازلي في العنصر المخصص
 function startCountdownOnButton(seconds) {
     openPuzzleBtn.disabled = true;
 
-    // عرض العد التنازلي في العنصر puzzleCountdown
     const countdownDisplay = document.getElementById('puzzleCountdown');
     countdownDisplay.innerText = ` ${formatTime(seconds)}`;
 
-    // استهداف العنصر المحدد فقط باستخدام الـ ID
     const puzzleItem = document.getElementById('puzzle1'); // استهداف العنصر حسب ID
     puzzleItem.classList.add('inactive'); // إضافة الفئة "inactive" لتفعيل تأثير الضباب والتوهج
 
@@ -1433,13 +1408,9 @@ function startCountdownOnButton(seconds) {
             countdownDisplay.innerText = ` ${formatTime(seconds)}`;
             setTimeout(updateCountdown, 1000);
         } else {
-            // عند انتهاء الوقت، إزالة التأثيرات
             countdownDisplay.innerText = 'Puzzle available now!';
-
-            // إزالة الفئة "inactive" وإضافة الفئة "active"
             puzzleItem.classList.remove('inactive'); // إزالة الفئة "inactive"
             puzzleItem.classList.add('active'); // إضافة الفئة "active"
-
             openPuzzleBtn.disabled = false;
             openPuzzleBtn.innerText = 'Open Puzzle';
         }
@@ -1456,30 +1427,24 @@ function formatTime(seconds) {
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
-
 // عرض أحجية اليوم إذا كانت متاحة
 async function displayTodaysPuzzle() {
     const puzzles = await loadPuzzles();
     currentPuzzle = getTodaysPuzzle(puzzles);
     const userTelegramId = uiElements.userTelegramIdDisplay.innerText;
 
-    // جلب تقدم المستخدم من قاعدة البيانات
-    const { data, error } = await supabase
-        .from('users')
-        .select('puzzles_progress')
-        .eq('telegram_id', userTelegramId)
-        .maybeSingle();
+    // جلب تقدم المستخدم من Firebase
+    const userDocRef = doc(db, "users", userTelegramId);
+    const userSnapshot = await getDoc(userDocRef);
 
-    if (error) {
-        console.error('Error fetching puzzle progress:', error);
-        showNotification(puzzleNotification, 'Error loading puzzle progress. Please try again later.');
+    if (!userSnapshot.exists()) {
+        console.error('User not found in Firebase');
         return;
     }
 
-    const puzzlesProgress = data?.puzzles_progress || {};
+    const puzzlesProgress = userSnapshot.data()?.puzzles_progress || {};
     const puzzleProgress = puzzlesProgress[currentPuzzle.id];
 
-    // التحقق من انتهاء العد التنازلي لمدة 24 ساعة من قاعدة البيانات
     const lastSolvedTime = puzzleProgress?.last_solved_time;
     if (lastSolvedTime) {
         const timeElapsed = Date.now() - new Date(lastSolvedTime).getTime();
@@ -1490,12 +1455,10 @@ async function displayTodaysPuzzle() {
         }
     }
 
-    // عرض السؤال والتلميح والمكافأة
     puzzleQuestion.innerText = currentPuzzle.question;
     puzzleHint.innerText = `Hint : ${currentPuzzle.hint}`;
     puzzleRewardDisplay.innerText = `Reward ${currentPuzzle.reward} $S4W`;
 
-    // عرض الخيارات كأزرار
     const optionsHtml = currentPuzzle.options.map(option => `<button class="option-btn">${option}</button>`).join('');
     puzzleOptions.innerHTML = optionsHtml;
 
@@ -1580,36 +1543,24 @@ function handlePuzzleWrongAnswer() {
 async function updatePuzzleProgressInDatabase(puzzleId, solved, attempts) {
     const userTelegramId = uiElements.userTelegramIdDisplay.innerText;
 
-    // جلب التقدم الحالي للمستخدم من قاعدة البيانات
-    const { data, error } = await supabase
-        .from('users')
-        .select('puzzles_progress')
-        .eq('telegram_id', userTelegramId)
-        .maybeSingle();
+    const userDocRef = doc(db, "users", userTelegramId);
+    const userSnapshot = await getDoc(userDocRef);
 
-    if (error) {
-        console.error('Error fetching puzzle progress:', error);
+    if (!userSnapshot.exists()) {
+        console.error('User not found in Firebase');
         return;
     }
 
-    let puzzlesProgress = data?.puzzles_progress || {};
+    let puzzlesProgress = userSnapshot.data()?.puzzles_progress || {};
 
-    // تحديث أو إضافة تقدم الأحجية الحالية
     puzzlesProgress[puzzleId] = {
         solved: solved,
         attempts: attempts,
-        last_solved_time: solved ? new Date().toISOString() : null // تحديث وقت الحل الأخير
+        last_solved_time: solved ? new Date().toISOString() : null
     };
 
-    // تحديث البيانات في قاعدة البيانات
-    const { updateError } = await supabase
-        .from('users')
-        .update({ puzzles_progress: puzzlesProgress })
-        .eq('telegram_id', userTelegramId);
-
-    if (updateError) {
-        console.error('Error updating puzzle progress:', updateError);
-    }
+    await updateDoc(userDocRef, { puzzles_progress: puzzlesProgress });
+    console.log('Puzzle progress updated in Firebase');
 }
 
 // تحديث عرض المحاولات المتبقية
@@ -1626,29 +1577,13 @@ function updateBalance(amount) {
 
 // إغلاق الأحجية
 function closePuzzle() {
-    clearInterval(countdownInterval); // إيقاف المؤقت عند الإغلاق
+    clearInterval(countdownInterval);
     puzzleContainer.classList.add('hidden');
     puzzleOptions.innerHTML = '';
     puzzleNotification.innerText = '';
     attempts = 0;
     puzzleSolved = false;
 }
-
-// مستمعات الأحداث
-puzzleOptions.addEventListener('click', function (event) {
-    if (event.target.classList.contains('option-btn')) {
-        checkPuzzleAnswer(event.target);
-    }
-});
-openPuzzleBtn.addEventListener('click', displayTodaysPuzzle);
-
-document.getElementById('puzzlecloseModal').addEventListener('click', function() {
-    document.getElementById('puzzleContainer').classList.add('hidden');
-});
-document.getElementById('puzzle1').addEventListener('click', function() {
-    document.getElementById('puzzleContainer').classList.remove('hidden');
-});
-
 
 
 
@@ -1831,6 +1766,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+import { doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.0.2/firebase-firestore.js";
+
+// استماع للنقر على زر تطبيق البرومو كود
 document.getElementById('applyPromoCode').addEventListener('click', async () => {
     const applyButton = document.getElementById('applyPromoCode');
     const promoCodeInput = document.getElementById('promoCodeInput');
@@ -1889,14 +1827,12 @@ document.getElementById('applyPromoCode').addEventListener('click', async () => 
             showNotificationWithStatus(uiElements.purchaseNotification, `Successfully added ${reward} coins to your balance!`, 'win');
 
             // حفظ الحالة الحالية للعبة وتحديثها في قاعدة البيانات
-            updateUI(); 
             saveGameState();  // حفظ الحالة الحالية
             await updateGameStateInDatabase({
                 used_Promo_Codes: gameState.usedPromoCodes,
                 balance: gameState.balance,
             });
 
-            
         } else {
             // عرض علامة خطأ (❌) عند البرومو كود غير صحيح
             applyButton.innerHTML = '❌';
@@ -1920,55 +1856,45 @@ document.getElementById('applyPromoCode').addEventListener('click', async () => 
 // دالة للتحقق من البرومو كود المستخدم من قاعدة البيانات
 async function checkIfPromoCodeUsed(enteredCode) {
     const userId = uiElements.userTelegramIdDisplay.innerText;
+    const userDocRef = doc(db, "users", userId);
 
-    const { data, error } = await supabase
-        .from('users')
-        .select('used_Promo_Codes')
-        .eq('telegram_id', userId)
-        .single(); // احصل على سجل المستخدم
-
-    if (error) {
-        console.error('Error fetching used promo codes:', error);
+    const userSnapshot = await getDoc(userDocRef);
+    if (!userSnapshot.exists()) {
+        console.error('User not found in Firebase');
         return false;
     }
 
-    const usedPromoCodes = data.used_Promo_Codes || [];
+    const usedPromoCodes = userSnapshot.data().used_Promo_Codes || [];
     return usedPromoCodes.includes(enteredCode);
 }
 
 // دالة لإضافة البرومو كود إلى الأكواد المستخدمة
 async function addPromoCodeToUsed(enteredCode) {
     const userId = uiElements.userTelegramIdDisplay.innerText;
+    const userDocRef = doc(db, "users", userId);
 
-    const { data, error } = await supabase
-        .from('users')
-        .select('used_Promo_Codes')
-        .eq('telegram_id', userId)
-        .single();
-
-    if (error) {
-        console.error('Error fetching used promo codes:', error);
+    const userSnapshot = await getDoc(userDocRef);
+    if (!userSnapshot.exists()) {
+        console.error('User not found in Firebase');
         return false;
     }
 
-    const usedPromoCodes = data.used_Promo_Codes || [];
+    let usedPromoCodes = userSnapshot.data().used_Promo_Codes || [];
     usedPromoCodes.push(enteredCode);
 
-    const { error: updateError } = await supabase
-        .from('users')
-        .update({ used_Promo_Codes: usedPromoCodes })
-        .eq('telegram_id', userId);
-
-    if (updateError) {
-        console.error('Error updating used promo codes:', updateError);
+    try {
+        await updateDoc(userDocRef, {
+            used_Promo_Codes: usedPromoCodes
+        });
+        console.log('Promo code added to used list successfully.');
+        return true;
+    } catch (error) {
+        console.error('Error updating used promo codes:', error);
         return false;
     }
-
-    console.log('Promo code added to used list successfully.');
-    return true;
 }
 
-
+// استماع لفتح نافذة البرومو كود
 document.getElementById('promocodeBtu').addEventListener('click', function() {
     document.getElementById('promoContainer').classList.remove('hidden');
 });
@@ -1978,6 +1904,8 @@ document.getElementById('promocloseModal').addEventListener('click', () => {
     document.getElementById('promoContainer').classList.add('hidden');
 });
 
+
+    
 
 
 /////////////////////////////////////////
@@ -2053,81 +1981,71 @@ document.addEventListener('DOMContentLoaded', () => {
     const dailyRewards = [100, 500, 2000, 5000, 8000, 15000, 30000, 50000, 100000]; // المكافآت
 
     // تحديث حساب الأيام المتتالية بناءً على تاريخ اليوم
-   async function handleDailyLogin() {
-     try {
-        const userTelegramId = uiElements.userTelegramIdDisplay.innerText;
+    async function handleDailyLogin() {
+        try {
+            const userTelegramId = uiElements.userTelegramIdDisplay.innerText;
 
-        // جلب بيانات المستخدم من قاعدة البيانات
-        const { data, error } = await supabase
-            .from('users')
-            .select('last_login_date, consecutive_days')
-            .eq('telegram_id', userTelegramId)
-            .maybeSingle();
+            // جلب بيانات المستخدم من Firebase
+            const userDocRef = doc(db, "users", userTelegramId);
+            const userSnapshot = await getDoc(userDocRef);
 
-        if (error || !data) {
-            console.error('Error fetching user data or user data not found:', error);
-            loginNotification.innerText = 'Error loading daily login. Please try again later.';
-            return;
-        }
+            if (!userSnapshot.exists()) {
+                console.error('User data not found.');
+                loginNotification.innerText = 'Error loading daily login. Please try again later.';
+                return;
+            }
 
-        let { last_login_date, consecutive_days } = data;
-        consecutive_days = consecutive_days || 0;
-        const today = new Date().toISOString().split('T')[0]; // تاريخ اليوم فقط (YYYY-MM-DD)
+            let { last_login_date, consecutive_days } = userSnapshot.data();
+            consecutive_days = consecutive_days || 0;
+            const today = new Date().toISOString().split('T')[0]; // تاريخ اليوم فقط (YYYY-MM-DD)
 
-        // التحقق من حالة تسجيل الدخول اليومي
-        if (last_login_date === today) {
-            loginNotification.innerText = 'You have already claimed today\'s reward.';
-            disableClaimButton();
+            // التحقق من حالة تسجيل الدخول اليومي
+            if (last_login_date === today) {
+                loginNotification.innerText = 'You have already claimed today\'s reward.';
+                disableClaimButton();
+                highlightRewardedDays(consecutive_days);
+                showRewardImage(consecutive_days);
+                return;
+            }
+
+            // التحقق من استمرارية الأيام المتتالية
+            const lastLoginDateObj = new Date(last_login_date);
+            const isConsecutive = (new Date(today).getDate() - lastLoginDateObj.getDate()) === 1 &&
+                new Date(today).getMonth() === lastLoginDateObj.getMonth() &&
+                new Date(today).getFullYear() === lastLoginDateObj.getFullYear();
+
+            if (isConsecutive) {
+                consecutive_days++;
+                if (consecutive_days > dailyRewards.length) consecutive_days = dailyRewards.length;
+            } else {
+                consecutive_days = 1; // إعادة تعيين إلى اليوم الأول إذا فات المستخدم يوم
+            }
+
+            // إضافة المكافأة للمستخدم بناءً على عدد الأيام المتتالية
+            const reward = dailyRewards[consecutive_days - 1];
+            updateBalance(reward);
+
+            // تحديث واجهة المستخدم
+            loginNotification.innerText = `Day ${consecutive_days}: You've earned ${reward} $S4W!`;
+            updateClaimButton(consecutive_days, reward);
             highlightRewardedDays(consecutive_days);
-            showRewardImage(consecutive_days);
-            return;
-        }
 
-        // التحقق من استمرارية الأيام المتتالية
-        const lastLoginDateObj = new Date(last_login_date);
-        const isConsecutive = (new Date(today).getDate() - lastLoginDateObj.getDate()) === 1 &&
-            new Date(today).getMonth() === lastLoginDateObj.getMonth() &&
-            new Date(today).getFullYear() === lastLoginDateObj.getFullYear();
-
-        if (isConsecutive) {
-            consecutive_days++;
-            if (consecutive_days > dailyRewards.length) consecutive_days = dailyRewards.length;
-        } else {
-            consecutive_days = 1; // إعادة تعيين إلى اليوم الأول إذا فات المستخدم يوم
-        }
-
-        // إضافة المكافأة للمستخدم بناءً على عدد الأيام المتتالية
-        const reward = dailyRewards[consecutive_days - 1];
-        updateBalance(reward);
-
-        // تحديث واجهة المستخدم
-        loginNotification.innerText = `Day ${consecutive_days}: You've earned ${reward} $S4W!`;
-        updateClaimButton(consecutive_days, reward);
-        highlightRewardedDays(consecutive_days);
-
-        // تحديث قاعدة البيانات
-        const { updateError } = await supabase
-            .from('users')
-            .update({
+            // تحديث قاعدة البيانات
+            await updateDoc(userDocRef, {
                 last_login_date: today,
                 consecutive_days: consecutive_days
-            })
-            .eq('telegram_id', userTelegramId);
+            });
 
-        if (updateError) {
-            console.error('Error updating daily login data:', updateError);
-            loginNotification.innerText = 'Error saving progress. Please try again later.';
-        } else {
             console.log('Database updated successfully');
+        } catch (error) {
+            console.error('Unexpected error in daily login:', error);
+            loginNotification.innerText = 'Error processing your daily login. Please try again later.';
         }
-    } catch (error) {
-        console.error('Unexpected error in daily login:', error);
-        loginNotification.innerText = 'Error processing your daily login. Please try again later.';
     }
-}
+
     // تحديث زر المطالبة بالمكافأة
     function updateClaimButton(day, reward) {
-        loginClaimBtn.innerText = `day ${day} : ${reward} $S4W`;
+        loginClaimBtn.innerText = `Day ${day} : ${reward} $S4W`;
         loginClaimBtn.disabled = false;
         loginClaimBtn.classList.remove('disabled');
     }
@@ -2150,7 +2068,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    
+
     // عرض الصورة الخاصة بكل يوم بعد المطالبة
     function showRewardImage(day) {
         rewardImages.forEach((img, index) => {
@@ -2195,7 +2113,6 @@ document.addEventListener('DOMContentLoaded', () => {
         openDailyLoginModal(userTelegramId);  // تأكد من تمرير userTelegramId هنا
     });
 });
-
 
 ///////////////////////////////////////
 
