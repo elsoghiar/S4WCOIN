@@ -481,7 +481,7 @@ img {
     padding-bottom: 40px; /* لإعطاء مساحة للنصوص */
 }
 
-.menu-list{
+.menu-list {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -539,10 +539,6 @@ img {
     background-color: #2D83EC;
 }
 
-.menu-label.active {
-    color: #fff;
-}
-
 .menu-label {
     position: absolute;
     top: 60px; /* إخراج النص من حدود القائمة */
@@ -566,6 +562,9 @@ img {
     color: #fff;
 }
 
+.menu button.active {
+    color: #fff;
+} 
 
 
 .confirmation-modal, .modal-content {
