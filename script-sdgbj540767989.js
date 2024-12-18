@@ -2472,9 +2472,7 @@ loginClaimBtn.addEventListener('click', async function () {
 
 
 
-
-    // عرض نافذة الترقية بناءً على النوع
-async function showCustomUpgradeModal(upgradeType) {
+ async function showUpgradeModal(upgradeType) {
     if (!uiElements.upgradeModal) return;
 
     // إظهار النافذة المنبثقة وطبقة العتامة
@@ -2482,7 +2480,6 @@ async function showCustomUpgradeModal(upgradeType) {
     document.getElementById('overlay').style.display = 'block';
     uiElements.upgradeModal.setAttribute('data-upgrade-type', upgradeType);
 
-    // إعداد بيانات الترقيات
     const upgrades = {
         boost: {
             cost: gameState.boostLevel * 500 + 500,
@@ -2493,6 +2490,10 @@ async function showCustomUpgradeModal(upgradeType) {
                     <path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5" />
                     <path d="M14 10.5a1.5 1.5 0 0 1 3 0v1.5" />
                     <path d="M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7l-.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47" />
+                    <path d="M5 3l-1 -1" />
+                    <path d="M4 7h-1" />
+                    <path d="M14 3l1 -1" />
+                    <path d="M15 6h1" />
                 </svg>
             `,
             title: "Hand Clicks",
@@ -2521,28 +2522,14 @@ async function showCustomUpgradeModal(upgradeType) {
     document.getElementById('upgradeCost').innerText = `Cost: ${upgrade.cost} $SAW`;
 }
 
-// حفظ الترقية باستخدام التخزين المحلي
-function saveLocalUpgradeState(upgradeType) {
-    const localUpgrades = JSON.parse(localStorage.getItem('localUpgrades')) || {};
-
-    if (upgradeType === 'boost') {
-        localUpgrades.boostLevel = (localUpgrades.boostLevel || 0) + 1;
-    } else if (upgradeType === 'coin') {
-        localUpgrades.coinBoostLevel = (localUpgrades.coinBoostLevel || 0) + 1;
-    }
-
-    localStorage.setItem('localUpgrades', JSON.stringify(localUpgrades));
-}
-
-// تحميل الترقية من التخزين المحلي
-function loadLocalUpgradeState() {
-    const localUpgrades = JSON.parse(localStorage.getItem('localUpgrades')) || {};
-    gameState.boostLevel = localUpgrades.boostLevel || gameState.boostLevel;
-    gameState.coinBoostLevel = localUpgrades.coinBoostLevel || gameState.coinBoostLevel;
+// إغلاق النافذة المنبثقة
+function closePopup() {
+    uiElements.upgradeModal.style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
 }
 
 // تأكيد الترقية
-function confirmCustomUpgradeAction() {
+function confirmUpgradeAction() {
     const upgradeType = uiElements.upgradeModal.getAttribute('data-upgrade-type');
     let cost;
 
@@ -2550,12 +2537,13 @@ function confirmCustomUpgradeAction() {
         cost = gameState.boostLevel * 500 + 500;
         if (gameState.balance >= cost) {
             gameState.balance -= cost;
+            gameState.boostLevel++;
             gameState.clickMultiplier += 1;
 
-            // حفظ الترقية في Local Storage
-            saveLocalUpgradeState('boost');
+            // حفظ الترقية
+            saveUpgradeState();
 
-            // إشعار النجاح
+            // عرض إشعار بالترقية
             showNotification(purchaseNotification, `Upgraded successfully: Hand Clicks`);
         } else {
             showNotification(purchaseNotification, 'You don’t have enough coins to upgrade.');
@@ -2564,12 +2552,12 @@ function confirmCustomUpgradeAction() {
         cost = gameState.coinBoostLevel * 500 + 500;
         if (gameState.balance >= cost) {
             gameState.balance -= cost;
+            gameState.coinBoostLevel++;
             gameState.maxEnergy += 500;
 
-            // حفظ الترقية في Local Storage
-            saveLocalUpgradeState('coin');
+            // حفظ الترقية
+            saveUpgradeState();
 
-            // إشعار النجاح
             showNotification(purchaseNotification, `Upgraded successfully: Energy Limits`);
         } else {
             showNotification(purchaseNotification, 'You don’t have enough coins to upgrade.');
@@ -2580,9 +2568,47 @@ function confirmCustomUpgradeAction() {
     closePopup();
 }
 
-// تحميل الترقيات من Local Storage عند التحميل
+// تحديث واجهة المستخدم
+function updateBoostsDisplay() {
+    if (!uiElements) return;
+
+    const boostUpgradeCost = gameState.boostLevel * 500 + 500;
+    const coinUpgradeCost = gameState.coinBoostLevel * 500 + 500;
+
+    document.getElementById('boostUpgradeCost').innerText = boostUpgradeCost;
+    document.getElementById('clickMultiplier').innerText = gameState.boostLevel;
+
+    document.getElementById('coinUpgradeCost').innerText = coinUpgradeCost;
+    document.getElementById('coinBoostLevel').innerText = gameState.coinBoostLevel;
+}
+
+// حفظ حالة الترقية في Local Storage
+function saveUpgradeState() {
+    const upgradeState = {
+        boostLevel: gameState.boostLevel,
+        coinBoostLevel: gameState.coinBoostLevel,
+        clickMultiplier: gameState.clickMultiplier,
+        maxEnergy: gameState.maxEnergy,
+    };
+
+    localStorage.setItem('upgradeState', JSON.stringify(upgradeState));
+}
+
+// تحميل حالة الترقية من Local Storage
+function loadUpgradeState() {
+    const savedState = localStorage.getItem('upgradeState');
+    if (savedState) {
+        const upgradeState = JSON.parse(savedState);
+        gameState.boostLevel = upgradeState.boostLevel || 0;
+        gameState.coinBoostLevel = upgradeState.coinBoostLevel || 0;
+        gameState.clickMultiplier = upgradeState.clickMultiplier || 1;
+        gameState.maxEnergy = upgradeState.maxEnergy || 0;
+    }
+}
+
+// إعداد الصفحة عند التحميل
 window.addEventListener('load', () => {
-    loadLocalUpgradeState();
+    loadUpgradeState();
     updateBoostsDisplay();
 });
 
@@ -2591,6 +2617,9 @@ document.getElementById('bost1').addEventListener('click', () => showUpgradeModa
 document.getElementById('bost2').addEventListener('click', () => showUpgradeModal('coin'));
 document.getElementById('closeModal').addEventListener('click', closePopup);
 document.getElementById('overlay').addEventListener('click', closePopup);
+
+//////////////////////////////////////
+
 
 
 //////////////////////////////////////
