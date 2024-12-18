@@ -2472,32 +2472,20 @@ loginClaimBtn.addEventListener('click', async function () {
 
 
 
-// دوال التعامل مع Local Storage
-function getUpgradeState() {
-    const savedState = JSON.parse(localStorage.getItem('upgradeState')) || {};
-    return {
-        boostLevel: savedState.boostLevel || 1,
-        coinBoostLevel: savedState.coinBoostLevel || 1,
-        clickMultiplier: savedState.clickMultiplier || 1,
-        maxEnergy: savedState.maxEnergy || 500,
-    };
-}
 
-function saveUpgradeState(upgradeState) {
-    localStorage.setItem('upgradeState', JSON.stringify(upgradeState));
-}
-
-// عرض النافذة المنبثقة للترقية
-async function showUpgradeModal(upgradeType) {
+    // عرض نافذة الترقية بناءً على النوع
+async function showCustomUpgradeModal(upgradeType) {
     if (!uiElements.upgradeModal) return;
 
-    // قراءة البيانات من Local Storage
-    const upgradeState = getUpgradeState();
+    // إظهار النافذة المنبثقة وطبقة العتامة
+    uiElements.upgradeModal.style.display = 'block';
+    document.getElementById('overlay').style.display = 'block';
+    uiElements.upgradeModal.setAttribute('data-upgrade-type', upgradeType);
 
-    // إعداد محتوى النافذة
+    // إعداد بيانات الترقيات
     const upgrades = {
         boost: {
-            cost: upgradeState.boostLevel * 500 + 500,
+            cost: gameState.boostLevel * 500 + 500,
             icon: `
                 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-boosts">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -2505,17 +2493,13 @@ async function showUpgradeModal(upgradeType) {
                     <path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0v2.5" />
                     <path d="M14 10.5a1.5 1.5 0 0 1 3 0v1.5" />
                     <path d="M17 11.5a1.5 1.5 0 0 1 3 0v4.5a6 6 0 0 1 -6 6h-2h.208a6 6 0 0 1 -5.012 -2.7l-.196 -.3c-.312 -.479 -1.407 -2.388 -3.286 -5.728a1.5 1.5 0 0 1 .536 -2.022a1.867 1.867 0 0 1 2.28 .28l1.47 1.47" />
-                    <path d="M5 3l-1 -1" />
-                    <path d="M4 7h-1" />
-                    <path d="M14 3l1 -1" />
-                    <path d="M15 6h1" />
                 </svg>
             `,
             title: "Hand Clicks",
-            current: `Click Multiplier: ×${upgradeState.clickMultiplier}`,
+            current: `Current Click Multiplier: ×${gameState.clickMultiplier}`,
         },
         coin: {
-            cost: upgradeState.coinBoostLevel * 500 + 500,
+            cost: gameState.coinBoostLevel * 500 + 500,
             icon: `
                 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-boosts">
                     <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -2523,74 +2507,82 @@ async function showUpgradeModal(upgradeType) {
                 </svg>
             `,
             title: "Energy Limits",
-            current: `Max Coins: ${formatNumber(upgradeState.maxEnergy)}`,
+            current: `Max Coins: ${formatNumber(gameState.maxEnergy)}`,
         },
     };
 
     const upgrade = upgrades[upgradeType];
     if (!upgrade) return;
 
-    // تحديث المحتوى بناءً على نوع الترقية
+    // تحديث محتوى النافذة بناءً على الترقية
     document.getElementById('upgradeIconContainer').innerHTML = upgrade.icon;
     document.getElementById('upgradeTitle').innerText = upgrade.title;
     document.getElementById('currentLevel').innerText = upgrade.current;
     document.getElementById('upgradeCost').innerText = `Cost: ${upgrade.cost} $SAW`;
+}
 
-    // عرض النافذة
-    uiElements.upgradeModal.style.display = 'block';
-    document.getElementById('overlay').style.display = 'block';
-    uiElements.upgradeModal.setAttribute('data-upgrade-type', upgradeType);
+// حفظ الترقية باستخدام التخزين المحلي
+function saveLocalUpgradeState(upgradeType) {
+    const localUpgrades = JSON.parse(localStorage.getItem('localUpgrades')) || {};
+
+    if (upgradeType === 'boost') {
+        localUpgrades.boostLevel = (localUpgrades.boostLevel || 0) + 1;
+    } else if (upgradeType === 'coin') {
+        localUpgrades.coinBoostLevel = (localUpgrades.coinBoostLevel || 0) + 1;
+    }
+
+    localStorage.setItem('localUpgrades', JSON.stringify(localUpgrades));
+}
+
+// تحميل الترقية من التخزين المحلي
+function loadLocalUpgradeState() {
+    const localUpgrades = JSON.parse(localStorage.getItem('localUpgrades')) || {};
+    gameState.boostLevel = localUpgrades.boostLevel || gameState.boostLevel;
+    gameState.coinBoostLevel = localUpgrades.coinBoostLevel || gameState.coinBoostLevel;
 }
 
 // تأكيد الترقية
-function confirmUpgradeAction() {
+function confirmCustomUpgradeAction() {
     const upgradeType = uiElements.upgradeModal.getAttribute('data-upgrade-type');
-    const upgradeState = getUpgradeState();
     let cost;
 
     if (upgradeType === 'boost') {
-        cost = upgradeState.boostLevel * 500 + 500;
+        cost = gameState.boostLevel * 500 + 500;
         if (gameState.balance >= cost) {
             gameState.balance -= cost;
-            upgradeState.boostLevel++;
-            upgradeState.clickMultiplier += 1;
+            gameState.clickMultiplier += 1;
+
+            // حفظ الترقية في Local Storage
+            saveLocalUpgradeState('boost');
+
+            // إشعار النجاح
             showNotification(purchaseNotification, `Upgraded successfully: Hand Clicks`);
         } else {
             showNotification(purchaseNotification, 'You don’t have enough coins to upgrade.');
         }
     } else if (upgradeType === 'coin') {
-        cost = upgradeState.coinBoostLevel * 500 + 500;
+        cost = gameState.coinBoostLevel * 500 + 500;
         if (gameState.balance >= cost) {
             gameState.balance -= cost;
-            upgradeState.coinBoostLevel++;
-            upgradeState.maxEnergy += 500;
+            gameState.maxEnergy += 500;
+
+            // حفظ الترقية في Local Storage
+            saveLocalUpgradeState('coin');
+
+            // إشعار النجاح
             showNotification(purchaseNotification, `Upgraded successfully: Energy Limits`);
         } else {
             showNotification(purchaseNotification, 'You don’t have enough coins to upgrade.');
         }
     }
 
-    // حفظ الحالة المحدثة
-    saveUpgradeState(upgradeState);
-
-    // تحديث واجهة المستخدم وإغلاق النافذة
-    updateBoostsDisplay();
+    updateUI();
     closePopup();
 }
 
-// تحديث واجهة المستخدم
-function updateBoostsDisplay() {
-    const upgradeState = getUpgradeState();
-
-    document.getElementById('boostUpgradeCost').innerText = upgradeState.boostLevel * 500 + 500;
-    document.getElementById('clickMultiplier').innerText = upgradeState.clickMultiplier;
-
-    document.getElementById('coinUpgradeCost').innerText = upgradeState.coinBoostLevel * 500 + 500;
-    document.getElementById('coinBoostLevel').innerText = upgradeState.coinBoostLevel;
-}
-
-// تحميل الحالة عند فتح التطبيق
+// تحميل الترقيات من Local Storage عند التحميل
 window.addEventListener('load', () => {
+    loadLocalUpgradeState();
     updateBoostsDisplay();
 });
 
@@ -2599,9 +2591,6 @@ document.getElementById('bost1').addEventListener('click', () => showUpgradeModa
 document.getElementById('bost2').addEventListener('click', () => showUpgradeModal('coin'));
 document.getElementById('closeModal').addEventListener('click', closePopup);
 document.getElementById('overlay').addEventListener('click', closePopup);
-
-
-
 
 
 //////////////////////////////////////
@@ -2626,7 +2615,7 @@ async function fetchLeaderboard() {
             .from('users')
             .select('username, balance, telegram_id')
             .order('balance', { ascending: false })
-            .limit(10); 
+            .limit(5); 
 
         if (error) throw error;
 
